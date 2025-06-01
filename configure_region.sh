@@ -3,14 +3,7 @@
 # -------- AWS Credential Check --------
 if ! aws sts get-caller-identity &>/dev/null; then
   echo "[!] AWS credentials not found or expired."
-  echo "    Launching 'aws configure'..."
-  aws configure
-
-  # Re-check after configuration
-  if ! aws sts get-caller-identity &>/dev/null; then
-    echo "[!] AWS CLI is still not configured. Exiting."
-    exit 1
-  fi
+  echo "    Run: 'aws configure'..."
 else
   echo "[✔] AWS credentials detected."
 fi
