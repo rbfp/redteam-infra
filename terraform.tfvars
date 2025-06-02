@@ -1,0 +1,6 @@
+project_name          = "redwest"
+region                = "us-west-2"
+availability_zone     = "us-west-2a"
+ami_id                = "ami-0ec1bf4a8f92e7bd1"
+ipv6_border_group     = "us-west-2"
+profile		      = "redteam"
