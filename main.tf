@@ -246,7 +246,7 @@ resource "aws_vpc" "main" {
     enable_dns_support                   = true
     enable_network_address_usage_metrics = false
     instance_tenancy                     = "default"
-    ipv6_cidr_block_network_border_group = "us-east-2"
+    ipv6_cidr_block_network_border_group = var.region
     tags                                 = {
         "Name" = "vpc"
     }
@@ -258,7 +258,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public_subnet" {
   assign_ipv6_address_on_creation                 = true
   map_public_ip_on_launch                         = false
-  availability_zone                               = "us-east-2a"
+  availability_zone                               = var.region
   cidr_block                                      = "10.0.0.0/20"
   enable_dns64                                    = false
   enable_resource_name_dns_a_record_on_launch     = false
@@ -267,16 +267,16 @@ resource "aws_subnet" "public_subnet" {
   private_dns_hostname_type_on_launch             = "ip-name"
   ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
   tags                                            = {
-    "Name" = "public1-us-east-2a"
+    "Name" = "public1-${var.region}"
   }
   tags_all                                        = {
-    "Name" = "public1-us-east-2a"
+    "Name" = "public1-${var.region}"
     }
     vpc_id                                        = aws_vpc.main.id 
 }
 
 resource "aws_subnet" "private_subnet" {
-  availability_zone                               = "us-east-2a"
+  availability_zone                               = var.region
   map_public_ip_on_launch                         = false
   ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
   assign_ipv6_address_on_creation                 = true
@@ -287,10 +287,10 @@ resource "aws_subnet" "private_subnet" {
   ipv6_native                                     = false
   private_dns_hostname_type_on_launch             = "ip-name"
   tags                                            = {
-        "Name" = "private1-us-east-2a"
+        "Name" = "private1-${var.region}"
     }
     tags_all                                      = {
-        "Name" = "private1-us-east-2a"
+        "Name" = "private1-${var.region}"
     }
     vpc_id                                        = aws_vpc.main.id 
 }

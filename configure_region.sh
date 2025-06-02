@@ -111,7 +111,8 @@ cp *.tf build/
 
 # -------- Update Files in build --------
 echo "[*] Updating AMIs in build/*.tf..."
-sed -i "s/ami-.*\"/\"$AMI_ID\"/g" build/*.tf
+# sed -i "s/ami-.*\"/\"$AMI_ID\"/g" build/*.tf
+sed -i "s/ami *= *\"ami-[a-zA-Z0-9-]*\"/ami = \"$AMI_ID\"/g" build/*.tf
 
 echo "[*] Updating availability zones to $AZ in build/*.tf..."
 sed -i "s/availability_zone *= *\"[^\"]*\"/availability_zone = \"$AZ\"/g" build/*.tf
@@ -119,17 +120,18 @@ sed -i "s/availability_zone *= *\"[^\"]*\"/availability_zone = \"$AZ\"/g" build/
 echo "[*] Prefixing resource names with $PROJECT_NAME..."
 sed -i "s/\(Name\" *= *\"\)\(.*\)\"/\1$PROJECT_NAME-\2\"/g" build/*.tf
 
+echo "[*] Updating provider.tf region to $REGION..."
+sed -i "s/region *= *\"[^\"]*\"/region = \"$REGION\"/g" build/provider.tf
+
 # -------- Generate auto README --------
-echo "[*] Writing build/README.auto.md..."
-cat <<EOF > build/README.auto.md
-# Terraform Config Summary
-
-**Region:** $REGION  
-**Availability Zone:** $AZ  
-**Operating System:** $OS  
-**AMI ID:** $AMI_ID
-
-Generated automatically by configure_region.sh
+echo "[*] Writing build/terraform.tfvars..."
+cat <<EOF > build/terraform.tfvars
+project_name        = "$PROJECT_NAME"
+region              = "$REGION"
+availability_zone   = "$AZ"
+ami_id              = "$AMI_ID"
+key_name            = "$KEY_NAME"
+ipv6_border_group   = "$REGION"
 EOF
 
 echo "[✔] Configuration updated in ./build with region $REGION, AZ $AZ, and AMI $AMI_ID."
