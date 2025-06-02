@@ -51,4 +51,8 @@ variable "ipv6_border_group" {
   description = "IPv6 network border group (usually matches region)"
   type        = string
 }
+variable "profile" {
+  description = "AWS CLI profile to use"
+  type        = string
+}
 
