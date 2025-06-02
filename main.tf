@@ -1,5 +1,5 @@
 resource "aws_instance" "redirector" {
-  ami                             = "ami-0cb91c7de36eed2cb"
+  ami                             = var.ami_id
   instance_type                   = "t2.micro"
   subnet_id                       = aws_subnet.private_subnet.id
   key_name                        = aws_key_pair.internal_keypair.key_name
@@ -12,7 +12,7 @@ resource "aws_instance" "redirector" {
 }
 
 resource "aws_instance" "c2_server" {
-  ami                             = "ami-0cb91c7de36eed2cb"
+  ami                             = var.ami_id
   instance_type                   = "t2.micro"
   subnet_id                       = aws_subnet.private_subnet.id
   key_name                        = aws_key_pair.internal_keypair.key_name
@@ -25,7 +25,7 @@ resource "aws_instance" "c2_server" {
 }
 
 resource "aws_instance" "bastion_host" {
-  ami                             = "ami-0cb91c7de36eed2cb"
+  ami                             = var.ami_id
   instance_type                   = "t2.micro"
   subnet_id                       = aws_subnet.public_subnet.id
   key_name                        = aws_key_pair.bastion_keypair.key_name
@@ -47,7 +47,7 @@ resource "aws_instance" "bastion_host" {
 
 resource "aws_security_group" "public_sg" {
     description     = "SG for Public Subnet (Redirector and Basiton EC2)"
-    name            = "Public-SG"
+    name            = "${var.project_name}-Public-SG"
     tags            = {}
     tags_all        = {}
     vpc_id          = aws_vpc.main.id
@@ -132,7 +132,7 @@ resource "aws_security_group_rule" "public_sg_rules_ingress_ipv6_to_public_80"{
 
 resource "aws_security_group" "private_sg" {
   description = "SG for Private Subnet (C2)"
-  name        = "Private-SG"
+  name        = "${var.project_name}-Private-SG"
   tags        = {}
   tags_all    = {}
   vpc_id      = aws_vpc.main.id
@@ -267,10 +267,10 @@ resource "aws_subnet" "public_subnet" {
   private_dns_hostname_type_on_launch             = "ip-name"
   ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
   tags                                            = {
-    "Name" = "public1-${var.region}"
+    "Name" = "${var.project_name}-public1-${var.region}"
   }
   tags_all                                        = {
-    "Name" = "public1-${var.region}"
+    "Name" = "${var.project_name}-public1-${var.region}"
     }
     vpc_id                                        = aws_vpc.main.id 
 }
@@ -287,10 +287,10 @@ resource "aws_subnet" "private_subnet" {
   ipv6_native                                     = false
   private_dns_hostname_type_on_launch             = "ip-name"
   tags                                            = {
-        "Name" = "private1-${var.region}"
+        "Name" = "${var.project_name}-private1-${var.region}"
     }
     tags_all                                      = {
-        "Name" = "private1-${var.region}"
+        "Name" = "${var.project_name}-private1-${var.region}"
     }
     vpc_id                                        = aws_vpc.main.id 
 }
@@ -301,13 +301,13 @@ resource "tls_private_key" "key1_local_to_bastion" {
 }
 
 resource "aws_key_pair" "bastion_keypair" {
-  key_name   = "bastion-key"
+  key_name   = "${var.project_name}-bastion-key"
   public_key = tls_private_key.key1_local_to_bastion.public_key_openssh
 }
 
 resource "local_file" "bastion_private_key" {
   content          = tls_private_key.key1_local_to_bastion.private_key_pem
-  filename         = "${path.module}/bastion.pem"
+  filename         = "${path.module}/${var.project_name}-bastion.pem"
   file_permission  = "0400"
 }
 
@@ -317,13 +317,13 @@ resource "tls_private_key" "key2_bastion_to_internal" {
 }
 
 resource "aws_key_pair" "internal_keypair" {
-  key_name   = "internal-key"
+  key_name   = "${var.project_name}-internal-key"
   public_key = tls_private_key.key2_bastion_to_internal.public_key_openssh
 }
 
 resource "local_file" "internal_private_key" {
   content          = tls_private_key.key2_bastion_to_internal.private_key_pem
-  filename         = "${path.module}/internal.pem"
+  filename         = "${path.module}/${var.project_name}-internal.pem"
   file_permission  = "0400"
 }
 resource "aws_route_table" "public_ipv6_only" {
@@ -334,7 +334,7 @@ resource "aws_route_table" "public_ipv6_only" {
   }
 
   tags = {
-    Name = "public-ipv6-only-route-table"
+    Name = "${var.project_name}-public-ipv6-only-route-table"
   }
 }
 
@@ -346,7 +346,7 @@ resource "aws_route_table_association" "public_ipv6_only_assoc" {
 resource "aws_route_table" "private_ipv4_only" {
   vpc_id = aws_vpc.main.id
   tags = {
-  Name = "private-ipv4-only-route-table"
+  Name = "${var._project_name}-private-ipv4-only-route-table"
   }
 }
 
@@ -357,7 +357,7 @@ resource "aws_route_table_association" "private_ipv4_only_assoc" {
 resource "aws_internet_gateway" "gw" {
   vpc_id  = aws_vpc.main.id
   tags    = {
-    Name  = "main-igw"
+    Name  = "${var.project_name}-main-igw"
   }
 }
 
