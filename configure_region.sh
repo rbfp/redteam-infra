@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # -------- AWS Credential Check --------
+# checks to see if 
 if ! aws sts get-caller-identity &>/dev/null; then
   echo "[!] AWS credentials not found or expired."
-  echo "    Run: 'aws configure'..."
+  echo "    Run: 'aws configure'"
+  exit 1 
 else
   echo "[✔] AWS credentials detected."
 fi
@@ -102,9 +104,7 @@ EOF
 echo "[✔] Configuration updated in ./build with region $REGION, AZ $AZ, and AMI $AMI_ID."
 
 # -------- Next Step Instructions --------
-echo "\n[➡] Next steps:"
+echo "[➡] Next steps:"
 echo "cd build"
-echo "terraform init"
-echo "terraform plan"
-echo "terraform apply"
+echo "terraform init && terraform plan && terraform apply"
 
