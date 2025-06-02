@@ -28,7 +28,7 @@ sudo apt install awscli
 
 ```bash
 # Step 0
-git clone git@github.com:<your-username>/redteam-infra.git
+git clone git@github.com:rbfp/redteam-infra.git
 cd redteam-infra
 
 # Step 1
