@@ -82,7 +82,7 @@ if [[ "$OS" == "ubuntu" ]]; then
               "Name=architecture,Values=x86_64" \
     --region "$REGION" \
     --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
-    --output text --profile redteam)
+    --output text --profile $AWS_PROFILE)
 
 elif [[ "$OS" == "amazon" ]]; then
   AMI_ID=$(aws ec2 describe-images \
@@ -91,7 +91,7 @@ elif [[ "$OS" == "amazon" ]]; then
               "Name=architecture,Values=x86_64" \
     --region "$REGION" \
     --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
-    --output text --profile redteam)
+    --output text --profile $AWS_PROFILE)
 else
   echo "[!] Unsupported OS type."
   exit 1
