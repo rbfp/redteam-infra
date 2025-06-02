@@ -346,7 +346,7 @@ resource "aws_route_table_association" "public_ipv6_only_assoc" {
 resource "aws_route_table" "private_ipv4_only" {
   vpc_id = aws_vpc.main.id
   tags = {
-  Name = "${var._project_name}-private-ipv4-only-route-table"
+    Name = "${var.project_name}-private-ipv4-only-route-table"
   }
 }
 

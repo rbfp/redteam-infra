@@ -24,10 +24,10 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
-variable "key_name" {
-  description = "SSH key name for EC2 access"
-  type        = string
-}
+#variable "key_name" {
+#  description = "SSH key name for EC2 access"
+#  type        = string
+#}
 
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
