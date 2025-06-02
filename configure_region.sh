@@ -1,14 +1,33 @@
 #!/bin/bash
 
-# -------- AWS Credential Check --------
-# checks to see if aws cli is configured. if not exit. 
-if ! aws sts get-caller-identity &>/dev/null; then
-  echo "[!] AWS credentials not found or expired."
-  echo "    Run: 'aws configure'"
-  exit 1 
-else
-  echo "[✔] AWS credentials detected."
+# Get list of profiles from AWS config
+profiles=($(aws configure list-profiles))
+
+# Exit if no profiles found
+if [ ${#profiles[@]} -eq 0 ]; then
+    echo "No AWS profiles found. Run 'aws configure' to set one up."
+    exit 1
 fi
+
+# Display the profiles with numbers
+echo "Select an AWS profile to use:"
+for i in "${!profiles[@]}"; do
+    echo "$((i+1))) ${profiles[$i]}"
+done
+
+# Prompt user to choose
+read -p "Enter the number of the profile to use: " choice
+
+# Validate input
+if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#profiles[@]}" ]; then
+    echo "Invalid selection. Exiting."
+    exit 1
+fi
+
+# Set the selected profile
+export AWS_PROFILE="${profiles[$((choice-1))]}"
+echo "Using profile: $AWS_PROFILE"
+
 
 # -------- Available Options --------
 # deploying only to us regions and using linux amis 
@@ -34,7 +53,7 @@ done
 # -------- Prompt for Availability Zone --------
 # runs awscli command to find AZs for the selected region. prompts user to select the AZ by inputting a number.
 echo "Fetching availability zones for $REGION..."
-AZS=($(aws ec2 describe-availability-zones --region "$REGION" --query 'AvailabilityZones[*].ZoneName' --output text))
+AZS=($(aws ec2 describe-availability-zones --region "$REGION" --query 'AvailabilityZones[*].ZoneName' --output text --profile "$AWS_PROFILE"))
 echo "Select availability zone:"
 select AZ in "${AZS[@]}"; do
   [[ -n "$AZ" ]] && break
