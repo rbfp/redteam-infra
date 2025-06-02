@@ -1,5 +1,6 @@
 #!/bin/bash
 
+<<<<<<< HEAD
 # Get list of profiles from AWS config
 profiles=($(aws configure list-profiles))
 
@@ -7,6 +8,16 @@ profiles=($(aws configure list-profiles))
 if [ ${#profiles[@]} -eq 0 ]; then
     echo "No AWS profiles found. Run 'aws configure' to set one up."
     exit 1
+=======
+# -------- AWS Credential Check --------
+# checks to see if 
+if ! aws sts get-caller-identity &>/dev/null; then
+  echo "[!] AWS credentials not found or expired."
+  echo "    Run: 'aws configure'"
+  exit 1 
+else
+  echo "[✔] AWS credentials detected."
+>>>>>>> parent of 2174355 (Updated readme with more instructions and added comments to configure_region.sh)
 fi
 
 # Display the profiles with numbers
@@ -30,12 +41,10 @@ echo "Using profile: $AWS_PROFILE"
 
 
 # -------- Available Options --------
-# deploying only to us regions and using linux amis 
 REGIONS=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
 OS_OPTIONS=("ubuntu" "amazon")
 
 # -------- Prompt for Region --------
-# select the specific region by entering a number.
 echo "Select AWS region:"
 select REGION in "${REGIONS[@]}"; do
   [[ -n "$REGION" ]] && break
@@ -43,7 +52,6 @@ select REGION in "${REGIONS[@]}"; do
 done
 
 # -------- Prompt for OS --------
-# select the ubuntu or amazon linux distro.
 echo "Select OS image:"
 select OS in "${OS_OPTIONS[@]}"; do
   [[ -n "$OS" ]] && break
@@ -51,7 +59,6 @@ select OS in "${OS_OPTIONS[@]}"; do
 done
 
 # -------- Prompt for Availability Zone --------
-# runs awscli command to find AZs for the selected region. prompts user to select the AZ by inputting a number.
 echo "Fetching availability zones for $REGION..."
 AZS=($(aws ec2 describe-availability-zones --region "$REGION" --query 'AvailabilityZones[*].ZoneName' --output text --profile "$AWS_PROFILE"))
 echo "Select availability zone:"
@@ -61,14 +68,12 @@ select AZ in "${AZS[@]}"; do
 done
 
 # -------- Validate Selection --------
-# checks if we have all necessary selections to move forward. 
 if [[ -z "$REGION" || -z "$OS" || -z "$AZ" ]]; then
   echo "[!] Missing required input."
   exit 1
 fi
 
 # -------- Get AMI ID --------
-# finds the ami for the selected region. each region has the same os but the ami # is different. not sure if this will need to be updated when OS versions update.
 echo "[*] Looking up latest AMI for $OS in $REGION..."
 
 if [[ "$OS" == "ubuntu" ]]; then
@@ -102,13 +107,11 @@ fi
 echo "[+] Using AMI: $AMI_ID"
 
 # -------- Create build directory --------
-# makes a build directory to store all the new Terraform files.
 echo "[*] Preparing build/ directory..."
 mkdir -p build
 cp *.tf build/
 
 # -------- Update Files in build --------
-# sed command to update the ami # in the Terraform files.
 echo "[*] Updating AMIs in build/*.tf..."
 sed -i "s/ami-.*\"/\"$AMI_ID\"/g" build/*.tf
 
@@ -116,7 +119,6 @@ echo "[*] Updating availability zones to $AZ in build/*.tf..."
 sed -i "s/availability_zone *= *\"[^\"]*\"/availability_zone = \"$AZ\"/g" build/*.tf
 
 # -------- Generate auto README --------
-# creates a README to display the select optiosn above.
 echo "[*] Writing build/README.auto.md..."
 cat <<EOF > build/README.auto.md
 # Terraform Config Summary
@@ -132,7 +134,6 @@ EOF
 echo "[✔] Configuration updated in ./build with region $REGION, AZ $AZ, and AMI $AMI_ID."
 
 # -------- Next Step Instructions --------
-# once the script is complete it will inform the user to run the following
 echo "[➡] Next steps:"
 echo "cd build"
 echo "terraform init && terraform plan && terraform apply"

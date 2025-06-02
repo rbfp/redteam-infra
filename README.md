@@ -17,9 +17,9 @@ This repo contains a fully Terraform-managed AWS deployment for red team operati
 
 ## Pre-requisites
 ```bash
-sudo apt update
-sudo apt install terraform
-sudo apt install awscli
+- sudo apt update
+- sudo apt install terraform
+- sudo apt install awscli
 ```
 - An AWS account where you can create Access Keys to configure AWS CLI 
 
