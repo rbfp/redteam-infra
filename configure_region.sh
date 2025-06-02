@@ -1,6 +1,5 @@
 #!/bin/bash
 
-<<<<<<< HEAD
 # Get list of profiles from AWS config
 profiles=($(aws configure list-profiles))
 
@@ -8,17 +7,8 @@ profiles=($(aws configure list-profiles))
 if [ ${#profiles[@]} -eq 0 ]; then
     echo "No AWS profiles found. Run 'aws configure' to set one up."
     exit 1
-=======
-# -------- AWS Credential Check --------
-# checks to see if 
-if ! aws sts get-caller-identity &>/dev/null; then
-  echo "[!] AWS credentials not found or expired."
-  echo "    Run: 'aws configure'"
-  exit 1 
-else
-  echo "[✔] AWS credentials detected."
->>>>>>> parent of 2174355 (Updated readme with more instructions and added comments to configure_region.sh)
 fi
+
 
 # Display the profiles with numbers
 echo "Select an AWS profile to use:"
@@ -38,6 +28,14 @@ fi
 # Set the selected profile
 export AWS_PROFILE="${profiles[$((choice-1))]}"
 echo "Using profile: $AWS_PROFILE"
+
+# -------- Prompt for Project Name --------
+echo "Enter a project name (no spaces):"
+read PROJECT_NAME
+if [[ -z "$PROJECT_NAME" ]]; then
+  echo "[!] Project name cannot be empty. Exiting."
+  exit 1
+fi
 
 
 # -------- Available Options --------
@@ -84,7 +82,7 @@ if [[ "$OS" == "ubuntu" ]]; then
               "Name=architecture,Values=x86_64" \
     --region "$REGION" \
     --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
-    --output text)
+    --output text --profile redteam)
 
 elif [[ "$OS" == "amazon" ]]; then
   AMI_ID=$(aws ec2 describe-images \
@@ -93,7 +91,7 @@ elif [[ "$OS" == "amazon" ]]; then
               "Name=architecture,Values=x86_64" \
     --region "$REGION" \
     --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
-    --output text)
+    --output text --profile redteam)
 else
   echo "[!] Unsupported OS type."
   exit 1
@@ -117,6 +115,9 @@ sed -i "s/ami-.*\"/\"$AMI_ID\"/g" build/*.tf
 
 echo "[*] Updating availability zones to $AZ in build/*.tf..."
 sed -i "s/availability_zone *= *\"[^\"]*\"/availability_zone = \"$AZ\"/g" build/*.tf
+
+echo "[*] Prefixing resource names with $PROJECT_NAME..."
+sed -i "s/\(Name\" *= *\"\)\(.*\)\"/\1$PROJECT_NAME-\2\"/g" build/*.tf
 
 # -------- Generate auto README --------
 echo "[*] Writing build/README.auto.md..."
