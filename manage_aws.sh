@@ -1,0 +1,79 @@
+#!/bin/bash
+
+while true; do
+  # Display menu options
+  echo "\nSelect an action:"
+  echo "1) List all EC2 instances in all regions"
+  echo "2) Stop all running EC2 instances"
+  echo "3) Stop EC2 Instances by ID"
+  echo "4) Describe VPCs"
+  echo "5) Exit"
+
+  # Prompt user for choice
+  read -p "Enter your choice [1-5]: " choice
+
+  # Act on user input
+  case "$choice" in
+    1)
+      echo "Running: List all EC2 instances in all regions"
+      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+        echo "Region: $region"
+        aws ec2 describe-instances --region "$region" \
+          --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Name']|[0].Value, State.Name, InstanceType, PrivateIpAddress, PublicIpAddress]" \
+          --output table
+      done
+      ;;
+    2)
+      echo "Running: Stop all running EC2 instances"
+      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+        echo "Checking region: $region"
+        instance_ids=$(aws ec2 describe-instances --region "$region" \
+          --filters Name=instance-state-name,Values=running \
+          --query "Reservations[].Instances[].InstanceId" --output text)
+        if [ -n "$instance_ids" ]; then
+          echo "Stopping instances in $region: $instance_ids"
+          aws ec2 stop-instances --region "$region" --instance-ids $instance_ids
+        else
+          echo "No running instances found in $region"
+        fi
+      done
+      ;;
+    3)
+      echo "Running: Stop EC2 Instances by ID"
+      read -p "Enter region (e.g., us-east-1): " region
+      read -p "Enter instance IDs separated by space: " instance_ids
+      if [ -n "$instance_ids" ]; then
+        echo "Stopping instances: $instance_ids in region: $region"
+        aws ec2 stop-instances --region "$region" --instance-ids $instance_ids
+      else
+        echo "No instance IDs provided."
+      fi
+      ;;
+    4)
+      echo "Running: Describe VPCs"
+      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+        echo "Region: $region"
+        aws ec2 describe-vpcs --region "$region" \
+          --query "Vpcs[*].[VpcId,State,CidrBlock,IsDefault]" \
+          --output table
+      done
+      ;;    4)
+      echo "Running: Describe VPCs"
+      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+        echo "Region: $region"
+        aws ec2 describe-vpcs --region "$region" \
+          --query "Vpcs[*].[VpcId,State,CidrBlock,IsDefault]" \
+          --output table
+      done
+      ;;
+    5)
+      echo "Exiting."
+      break
+      ;;
+    *)
+      echo "Invalid option. Please enter a number between 1 and 5."
+      ;;
+  esac
+
+done
+
