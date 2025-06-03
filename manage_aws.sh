@@ -2,13 +2,14 @@
 
 while true; do
   # Display menu options
-  echo "\nSelect an action:"
+  echo "Select an action:"
   echo "1) List all EC2 instances in all regions"
   echo "2) Stop all running EC2 instances"
   echo "3) Stop EC2 Instances by ID"
   echo "4) Describe VPCs"
   echo "5) Start EC2 Instances by Region"
-  echo "6) Exit"
+  echo "6) List EC2 Instances by Region"
+  echo "7) Exit"
 
   # Prompt user for choice
   read -p "Enter your choice: " choice
@@ -81,6 +82,13 @@ while true; do
       fi
       ;;
     6)
+      echo "Running: List EC2 Instances by Region"
+      read -p "Enter region (e.g., us-east-1): " region
+      aws ec2 describe-instances --region "$region" \
+        --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Name']|[0].Value, State.Name, InstanceType, PrivateIpAddress, PublicIpAddress]" \
+        --output table
+      ;;
+    7)
       echo "Exiting."
       break
       ;;
