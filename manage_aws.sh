@@ -7,10 +7,11 @@ while true; do
   echo "2) Stop all running EC2 instances"
   echo "3) Stop EC2 Instances by ID"
   echo "4) Describe VPCs"
-  echo "5) Exit"
+  echo "5) Start EC2 Instances by Region"
+  echo "6) Exit"
 
   # Prompt user for choice
-  read -p "Enter your choice [1-5]: " choice
+  read -p "Enter your choice: " choice
 
   # Act on user input
   case "$choice" in
@@ -67,6 +68,19 @@ while true; do
       done
       ;;
     5)
+      echo "Running: Start EC2 Instances by Region"
+      read -p "Enter region (e.g., us-east-1): " region
+      instance_ids=$(aws ec2 describe-instances --region "$region" \
+        --filters Name=instance-state-name,Values=stopped \
+        --query "Reservations[].Instances[].InstanceId" --output text)
+      if [ -n "$instance_ids" ]; then
+        echo "Starting instances in $region: $instance_ids"
+        aws ec2 start-instances --region "$region" --instance-ids $instance_ids
+      else
+        echo "No stopped instances found in $region"
+      fi
+      ;;
+    6)
       echo "Exiting."
       break
       ;;
