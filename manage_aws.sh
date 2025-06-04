@@ -22,6 +22,7 @@ while true; do
       echo "Running: List all EC2 instances in all regions"
       for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
         echo "Region: $region"
+        echo -e "InstanceId\tName\tState\tType\tPrivateIP\tPublicIP\tIPv6"
         aws ec2 describe-instances --region "$region" \
           --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Name']|[0].Value, State.Name, InstanceType, PrivateIpAddress, PublicIpAddress, Ipv6Addresses[0].Ipv6Address]" \
           --output table
@@ -30,14 +31,16 @@ while true; do
     2)
       echo "Running: List EC2 Instances by Region"
       read -p "Enter region (e.g., us-east-1): " region
+      echo -e "InstanceId\tName\tState\tType\tPrivateIP\tPublicIP\tIPv6"
       aws ec2 describe-instances --region "$region" \
         --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Name']|[0].Value, State.Name, InstanceType, PrivateIpAddress, PublicIpAddress, Ipv6Addresses[0].Ipv6Address]" \
         --output table
       ;;
     3)
       echo "Running: Describe VPCs"
-      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+      for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output table); do
         echo "Region: $region"
+        echo -e "VpcId\tName\tState\tCidrBlock\tIsDefault"
         aws ec2 describe-vpcs --region "$region" \
           --query "Vpcs[*].[VpcId, Tags[?Key=='Name']|[0].Value, State, CidrBlock, IsDefault]" \
           --output table
