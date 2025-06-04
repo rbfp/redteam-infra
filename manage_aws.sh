@@ -2,7 +2,7 @@
 
 while true; do
   # Display menu options
-  echo "\nSelect an action:"
+  echo "Select an action:"
   echo "1) List all EC2 instances in all regions"
   echo "2) List EC2 instances by region"
   echo "3) Describe VPCs"
@@ -39,7 +39,7 @@ while true; do
       for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
         echo "Region: $region"
         aws ec2 describe-vpcs --region "$region" \
-          --query "Vpcs[*].[VpcId,State,CidrBlock,IsDefault]" \
+          --query "Vpcs[*].[VpcId, Tags[?Key=='Name']|[0].Value, State, CidrBlock, IsDefault]" \
           --output table
       done
       ;;
