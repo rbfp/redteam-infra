@@ -7,7 +7,7 @@ resource "aws_instance" "redirector" {
   associate_public_ip_address     = false
   ipv6_address_count              = 1
   tags                            = {
-    "Name" = "Redirector"
+    "Name" = "${var.project_name}-Redirector"
   }
 }
 
@@ -20,7 +20,7 @@ resource "aws_instance" "c2_server" {
   associate_public_ip_address     = false # disable IPv4 public IP
   ipv6_address_count              = 1
   tags                            = {
-    "Name" = "C2-Server"
+    "Name" = "${var.project_name}-C2-Server"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_instance" "bastion_host" {
   associate_public_ip_address     = false # disable IPv4 public IP
   ipv6_address_count              = 1
   tags                            = {
-    "Name" = "Bastion-Host"
+    "Name" = "${var.project_name}-Bastion-Host"
   }
   user_data = <<-EOF
               #!/bin/bash
