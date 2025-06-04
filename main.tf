@@ -233,7 +233,7 @@ resource "aws_security_group" "bastion_sg" {
             to_port          = 22
         },
     ]
-    name        = "${var.public_name}-Bastion-SG"
+    name        = "${var.project_name}-Bastion-SG"
     tags        = {}
     tags_all    = {}
     vpc_id      = aws_vpc.main.id 
