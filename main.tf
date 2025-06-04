@@ -248,10 +248,10 @@ resource "aws_vpc" "main" {
     instance_tenancy                     = "default"
     ipv6_cidr_block_network_border_group = var.region
     tags                                 = {
-        "Name" = "vpc"
+        "Name" = "${var.project_name}-vpc"
     }
     tags_all                             = {
-        "Name" = "vpc"
+        "Name" = "${var.project_name}-vpc"
     }
 }
 
