@@ -266,6 +266,7 @@ resource "aws_subnet" "public_subnet" {
   ipv6_native                                     = false
   private_dns_hostname_type_on_launch             = "ip-name"
   ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
+  enable_resource_name_dns_aaaa_record_on_launch = true
   tags                                            = {
     "Name" = "${var.project_name}-public1-${var.region}"
   }

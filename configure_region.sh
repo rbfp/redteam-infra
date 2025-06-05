@@ -137,7 +137,11 @@ EOF
 echo "[✔] Configuration updated in ./build with region $REGION, AZ $AZ, and AMI $AMI_ID."
 
 # -------- Next Step Instructions --------
-echo "[➡] Next steps:"
-echo "cd build"
-echo "terraform init && terraform plan && terraform apply"
+# echo "[➡] Next steps:"
+# echo "cd build"
+# echo "terraform init && terraform plan && terraform apply"
 
+# -------- Terraform Instructions --------
+terraform init ./build
+terraform -chdir=./build plan
+terraform -chdir=./build apply -auto-approve
