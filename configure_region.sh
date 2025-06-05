@@ -142,6 +142,7 @@ echo "[✔] Configuration updated in ./build with region $REGION, AZ $AZ, and AM
 # echo "terraform init && terraform plan && terraform apply"
 
 # -------- Terraform Instructions --------
-terraform init ./build
+echo "[*] Writing build/terraform.tfvars..."
+terraform -chdir=./build init
 terraform -chdir=./build plan
 terraform -chdir=./build apply -auto-approve
