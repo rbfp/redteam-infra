@@ -1,6 +1,0 @@
-project_name        = "redwest1"
-region              = "us-west-1"
-availability_zone   = "us-west-1a"
-ami_id              = "ami-043b59f1d11f8f189"
-ipv6_border_group   = "us-west-1"
-profile             = "redteam"
