@@ -114,8 +114,8 @@ resource "aws_security_group_rule" "public_sg_rules_ingress_bastion_to_public_22
   prefix_list_ids             = []
   protocol                    = "tcp"
   to_port                     = 22
-  ipv6_cidr_blocks            = ["::/0"]
 }
+
 resource "aws_security_group_rule" "public_sg_rules_ingress_ipv6_to_public_80"{
   type                = "ingress"
   security_group_id   = aws_security_group.public_sg.id            
@@ -262,10 +262,11 @@ resource "aws_subnet" "public_subnet" {
   cidr_block                                      = "10.0.0.0/20"
   enable_dns64                                    = false
   enable_resource_name_dns_a_record_on_launch     = false
-  enable_resource_name_dns_aaaa_record_on_launch  = false
+  enable_resource_name_dns_aaaa_record_on_launch  = true
   ipv6_native                                     = false
   private_dns_hostname_type_on_launch             = "ip-name"
   ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
+  enable_resource_name_dns_aaaa_record_on_launch = true
   tags                                            = {
     "Name" = "${var.project_name}-public1-${var.region}"
   }
