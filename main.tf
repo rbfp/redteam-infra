@@ -114,8 +114,8 @@ resource "aws_security_group_rule" "public_sg_rules_ingress_bastion_to_public_22
   prefix_list_ids             = []
   protocol                    = "tcp"
   to_port                     = 22
+  ipv6_cidr_blocks            = ["::/0"]
 }
-
 resource "aws_security_group_rule" "public_sg_rules_ingress_ipv6_to_public_80"{
   type                = "ingress"
   security_group_id   = aws_security_group.public_sg.id            

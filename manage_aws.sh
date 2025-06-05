@@ -57,24 +57,11 @@ while true; do
         --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Name']|[0].Value]" --output text)
       if [ -n "$instance_info" ]; then
         while read -r instance_id name; do
-          if [[ "$name" == "Redirector" ]]; then
-            echo "[+] Found stopped Redirector ($instance_id). Redeploying with Terraform..."
-            export TF_VAR_region="$region"
-            terraform destroy -target=aws_instance.redirector -var="region=$region" -auto-approve
-            terraform apply -target=aws_instance.redirector -var="region=$region" -auto-approve
-          else
             echo "[+] Starting instance $instance_id ($name) in $region"
             aws ec2 start-instances --region "$region" --instance-ids "$instance_id"
-          fi
         done <<< "$instance_info"
       else
         echo "[+] No stopped instances found in $region."
-        read -p "Are you trying to start a Redirector instance? [y/N]: " confirm
-        if [[ "$confirm" =~ ^[Yy]$ ]]; then
-          echo "[+] Redirector must be deployed via Terraform. Running Terraform commands..."
-          export TF_VAR_region="$region"
-          terraform init && terraform apply -target=aws_instance.redirector -var="region=$region" -auto-approve
-        fi
       fi
       ;;
     5)
