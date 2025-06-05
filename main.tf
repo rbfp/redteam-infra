@@ -18,7 +18,7 @@ resource "aws_instance" "c2_server" {
   key_name                        = aws_key_pair.internal_keypair.key_name
   vpc_security_group_ids          = [aws_security_group.private_sg.id]
   associate_public_ip_address     = false # disable IPv4 public IP
-  ipv6_address_count              = 1
+  ipv6_address_count              = 0#1
   tags                            = {
     "Name" = "${var.project_name}-C2-Server"
   }
