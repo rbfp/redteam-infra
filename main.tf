@@ -278,11 +278,11 @@ resource "aws_subnet" "public_subnet" {
 resource "aws_subnet" "private_subnet" {
   availability_zone                               = var.availability_zone
   map_public_ip_on_launch                         = false
-  ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
+  # ipv6_cidr_block                                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
   assign_ipv6_address_on_creation                 = true
   cidr_block                                      = "10.0.128.0/20"
   enable_dns64                                    = false
-  enable_resource_name_dns_a_record_on_launch     = false
+  enable_resource_name_dns_a_record_on_launch     = true
   enable_resource_name_dns_aaaa_record_on_launch  = false
   ipv6_native                                     = false
   private_dns_hostname_type_on_launch             = "ip-name"
