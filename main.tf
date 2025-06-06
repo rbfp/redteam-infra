@@ -5,7 +5,7 @@ resource "aws_instance" "redirector" {
   key_name                        = aws_key_pair.internal_keypair.key_name
   vpc_security_group_ids          = [aws_security_group.public_sg.id]
   associate_public_ip_address     = false
-  ipv6_address_count              = 1
+  #  ipv6_address_count              = 1
   tags                            = {
     "Name" = "${var.project_name}-Redirector"
   }
