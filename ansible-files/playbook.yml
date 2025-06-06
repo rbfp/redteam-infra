@@ -1,0 +1,17 @@
+---
+- name: Create user on EC2
+  hosts: ec2
+  become: true
+
+  tasks:
+    - name: Create user
+      user:
+        name: bastion
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Add SSH key
+      authorized_key:
+        user: bastion
+        key: "{{ lookup('file', 'files/bastion.pub') }}"
+
