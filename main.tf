@@ -5,11 +5,30 @@ resource "aws_instance" "redirector" {
   key_name                        = aws_key_pair.internal_keypair.key_name
   vpc_security_group_ids          = [aws_security_group.public_sg.id]
   associate_public_ip_address     = false
-  ipv6_address_count              = 1
+# ipv6_address_count              = 1
   tags                            = {
     "Name" = "${var.project_name}-Redirector"
   }
 }
+
+provisioner "remote-exec" {
+    inline = [
+      "sudo adduser --disabled-password --gecos \"\" bastion",
+      "sudo mkdir -p /home/bastion/.ssh",
+      "echo '${tls_private_key.key_bastion.public_key_openssh}' | sudo tee /home/bastion/.ssh/authorized_keys",
+      "sudo chown -R bastion:bastion /home/bastion/.ssh",
+      "sudo chmod 700 /home/bastion/.ssh",
+      "sudo chmod 600 /home/bastion/.ssh/authorized_keys"
+    ]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = tls_private_key.key1_local_to_bastion.private_key_pem
+    host        = self.ipv6_addresses[0]
+  }
+
 
 resource "aws_instance" "c2_server" {
   ami                             = var.ami_id
