@@ -9,6 +9,7 @@ resource "aws_instance" "redirector" {
   tags                            = {
     "Name" = "${var.project_name}-Redirector"
   }
+}
 
 <<<<<<< HEAD
 provisioner "remote-exec" {
@@ -28,7 +29,7 @@ provisioner "remote-exec" {
     private_key = tls_private_key.key1_local_to_bastion.private_key_pem
     host        = self.ipv6_addresses[0]
   }
-}
+
 
 =======
 >>>>>>> parent of 2fcf5a1 (updated main.tf to create the bastion user during creation)
