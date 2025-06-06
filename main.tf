@@ -14,7 +14,7 @@ provisioner "remote-exec" {
     inline = [
       "sudo adduser --disabled-password --gecos \"\" bastion",
       "sudo mkdir -p /home/bastion/.ssh",
-      "echo '${tls_private_key.key_bastion.public_key_openssh}' | sudo tee /home/bastion/.ssh/authorized_keys",
+      "echo '${tls_private_key.key1_local_to_bastion.private_key_pem}' | sudo tee /home/bastion/.ssh/authorized_keys",
       "sudo chown -R bastion:bastion /home/bastion/.ssh",
       "sudo chmod 700 /home/bastion/.ssh",
       "sudo chmod 600 /home/bastion/.ssh/authorized_keys"
