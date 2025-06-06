@@ -9,7 +9,6 @@ resource "aws_instance" "redirector" {
   tags                            = {
     "Name" = "${var.project_name}-Redirector"
   }
-}
 
 provisioner "remote-exec" {
     inline = [
@@ -28,7 +27,7 @@ provisioner "remote-exec" {
     private_key = tls_private_key.key1_local_to_bastion.private_key_pem
     host        = self.ipv6_addresses[0]
   }
-
+}
 
 resource "aws_instance" "c2_server" {
   ami                             = var.ami_id
