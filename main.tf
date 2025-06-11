@@ -44,14 +44,20 @@ resource "aws_instance" "bastion_host" {
               chmod 400 /home/ubuntu/.ssh/internal.pem
               
               # Create bastion user with passwordless sudo
-              useradd -m bastion
+              useradd -m -s /bin/bash  bastion
               echo "bastion ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
               mkdir -p /home/bastion/.ssh
 
-              # Set up SSH key for bastion user
+              # Set up SSH key for bastion user to ssh to internal resources
               echo "${tls_private_key.key2_bastion_to_internal.private_key_pem}" > /home/bastion/.ssh/internal.pem
-              chown bastion:bastion /home/bastion/.ssh/internal.pem
+              # chown bastion:bastion /home/bastion/.ssh/internal.pem
               chmod 400 /home/bastion/.ssh/internal.pem
+
+              # Set up SSH for local to bastion host
+              echo "${tls_private_key.key1_local_to_bastion.public_key_openssh}" > /home/bastion/.ssh/authorized_keys
+              chown -R bastion:bastion /home/bastion/.ssh
+              chmod 700 /home/bastion/.ssh
+              chmod 600 /home/bastion/.ssh/authorized_keys
               EOF
 
 }
