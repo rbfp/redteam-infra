@@ -37,10 +37,21 @@ resource "aws_instance" "bastion_host" {
   }
   user_data = <<-EOF
               #!/bin/bash
+              # Store the private key for the ubuntu user
               mkdir -p /home/ubuntu/.ssh
               echo "${tls_private_key.key2_bastion_to_internal.private_key_pem}" > /home/ubuntu/.ssh/internal.pem
               chown ubuntu:ubuntu /home/ubuntu/.ssh/internal.pem
               chmod 400 /home/ubuntu/.ssh/internal.pem
+              
+              # Create bastion user with passwordless sudo
+              useradd -m bastion
+              echo "bastion ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+              mkdir -p /home/bastion/.ssh
+
+              # Set up SSH key for bastion user
+              echo "${tls_private_key.key2_bastion_to_internal.private_key_pem}" > /home/bastion/.ssh/internal.pem
+              chown bastion:bastion /home/bastion/.ssh/internal.pem
+              chmod 400 /home/bastion/.ssh/internal.pem
               EOF
 
 }
