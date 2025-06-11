@@ -22,6 +22,19 @@ resource "aws_instance" "c2_server" {
   tags                            = {
     "Name" = "${var.project_name}-C2-Server"
   }
+  user_data = <<-EOF
+              #!/bin/bash
+              # Create c2-server user with passwordless sudo
+              useradd -m -s /bin/bash c2server
+              echo "c2server ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+              mkdir -p /home/c2server/.ssh
+
+              # Set up to use SSH with internal to c2server
+              echo "${tls_private_key.key2_bastion_to_internal.public_key_openssh}" > /home/c2server/.ssh/authorized_keys
+              chown -R c2server:c2server /home/c2server/.ssh
+              chmod 700 /home/c2server/.ssh
+              chmod 600 /home/c2server/.ssh/authorized_keys
+              EOF
 }
 
 resource "aws_instance" "bastion_host" {
@@ -50,7 +63,6 @@ resource "aws_instance" "bastion_host" {
 
               # Set up SSH key for bastion user to ssh to internal resources
               echo "${tls_private_key.key2_bastion_to_internal.private_key_pem}" > /home/bastion/.ssh/internal.pem
-              # chown bastion:bastion /home/bastion/.ssh/internal.pem
               chmod 400 /home/bastion/.ssh/internal.pem
 
               # Set up SSH for local to bastion host
