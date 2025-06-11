@@ -9,19 +9,6 @@ resource "aws_instance" "redirector" {
   tags                            = {
     "Name" = "${var.project_name}-Redirector"
   }
-  user_data = <<-EOF
-              #!/bin/bash
-              # Create redirector user with passwordless sudo
-              useradd -m -s /bin/bash redirector 
-              echo "redirector ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-              mkdir -p /home/redirector/.ssh
-
-              # Set up to use SSH with internal to redirector 
-              echo "${tls_private_key.key2_bastion_to_internal.public_key_openssh}" > /home/redirector/.ssh/authorized_keys
-              chown -R redirector:redirector /home/redirector/.ssh
-              chmod 700 /home/redirector/.ssh
-              chmod 600 /home/redirector/.ssh/authorized_keys
-              EOF
 }
 
 resource "aws_instance" "c2_server" {
