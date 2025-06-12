@@ -1,17 +1,50 @@
 ---
-- name: Create user on EC2
-  hosts: ec2
+- name: Download OpenJDK 11 packages on bastion
+  hosts: bastion
   become: true
+  vars:
+    package_name: openjdk-11-jdk
+    download_dir: /home/bastion/openjdk-11-jdk
 
   tasks:
-    - name: Create user
-      user:
-        name: bastion
-        shell: /bin/bash
-        create_home: yes
+    - name: Ensure download directory exists
+      file:
+        path: "{{ download_dir }}"
+        state: directory
+        owner: bastion
+        group: bastion
+        mode: '0755'
 
-    - name: Add SSH key
-      authorized_key:
-        user: bastion
-        key: "{{ lookup('file', 'files/bastion.pub') }}"
+    - name: Download .deb files
+      shell: |
+        cd {{ download_dir }}
+        apt-get update
+        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+          --no-conflicts --no-breaks --no-replaces --no-enhances \
+          --no-pre-depends {{ package_name }} | grep "^\w")
+      args:
+        executable: /bin/bash
+
+    - name: Fix ownership
+      file:
+        path: "{{ download_dir }}"
+        recurse: yes
+        owner: bastion
+        group: bastion
+
+- name: Transfer .deb files from bastion to C2 server
+  hosts: bastion
+  become: false
+  vars:
+    download_dir: /home/bastion/openjdk-11-jdk
+  vars_prompt:
+    - name: "c2_ip"
+      prompt: "Enter private IPv4 address of C2 server"
+      private: no
+
+  tasks:
+    - name: Copy .deb files from bastion to C2 server
+      shell: >
+        scp -i /home/bastion/.ssh/c2.pem -o StrictHostKeyChecking=no
+        {{ download_dir }}/*.deb bastion@{{ c2_ip }}:~/openjdk-11-jdk/
 
