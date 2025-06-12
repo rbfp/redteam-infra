@@ -38,3 +38,16 @@
         executable: /bin/bash
       environment:
         DEBIAN_FRONTEND: noninteractive
+
+- name: Sync jdk and jre folders from bastion to c2 server
+  hosts: "{{ c2server_ipv4 }}"
+  gather_facts: false
+  tasks:
+    - name: Sync jdk folder from bastion to c2 server
+      synchronize:
+        src: /home/bastion/openjdk-11-jdk
+        dest: /home/c2server/openjdk-11-jdk
+        mode: pull
+        rsync_opts:
+          - "--rsh=ssh -i /home/bastion/.ssh/internal.pem -l c2server -o StrictHostKeyChecking=no"
+        delegate_to: "{{ bastion_ipv6 }}"
