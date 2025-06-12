@@ -1,73 +1,40 @@
 ---
-- name: Download OpenJDK 11 packages on bastion
-  hosts: all
+- name: Update APT and download OpenJDK 11 packages
+  hosts: all 
   become: true
-  vars:
-    package_name: openjdk-11-jdk
-    download_dir: /home/bastion/openjdk-11-jdk
-  vars_prompt:
-    - name: "bastion_ip"
-      prompt: "Enter the IPv6 address of the bastion host"
-      private: no
-
-    - name: "project_name"
-      prompt: "Enter the project name used to name the PEM file"
-      private: no
-
   tasks:
-    - name: Add bastion host to inventory at runtime
-      add_host:
-        name: "[{{ bastion_ip }}]"
-        groups: bastion
-        ansible_user: bastion
-        ansible_ssh_private_key_file: "./build/{{ project_name }}-bastion.pem"
+    - name: Ensure apt cache is updated
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # optional: only update if older than 1 hour
 
-- name: Download OpenJDK 11 packages on bastion
-  hosts: bastion
-  become: true
-  vars:
-    package_name: openjdk-11-jdk
-    download_dir: /home/bastion/openjdk-11-jdk
-
-  tasks:
-    - name: Ensure download directory exists
+    - name: Create directory for OpenJDK 11 JDK .deb files
       file:
-        path: "{{ download_dir }}"
+        path: /home/bastion/openjdk-11-jdk
         state: directory
         owner: bastion
         group: bastion
         mode: '0755'
 
-    - name: Download .deb files
-      shell: |
-        cd {{ download_dir }}
-        apt-get update
-        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
-          --no-conflicts --no-breaks --no-replaces --no-enhances \
-          --no-pre-depends {{ package_name }} | grep "^\w")
-      args:
-        executable: /bin/bash
-
-    - name: Fix ownership
+    - name: Create directory for OpenJDK 11 JRE .deb files
       file:
-        path: "{{ download_dir }}"
-        recurse: yes
+        path: /home/bastion/openjdk-11-jre
+        state: directory
         owner: bastion
         group: bastion
-
-- name: Transfer .deb files from bastion to C2 server
-  hosts: bastion
-  become: false
-  vars:
-    download_dir: /home/bastion/openjdk-11-jdk
-  vars_prompt:
-    - name: "c2_ip"
-      prompt: "Enter private IPv4 address of C2 server"
-      private: no
-
-  tasks:
-    - name: Copy .deb files from bastion to C2 server
-      shell: >
-        scp -i /home/bastion/.ssh/c2.pem -o StrictHostKeyChecking=no
-        {{ download_dir }}/*.deb bastion@{{ c2_ip }}:~/openjdk-11-jdk/
-
+        mode: '0755'
+        
+    - name: Download .deb files
+      shell: |
+        cd /home/bastion/openjdk-11-jdk && \
+        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+          --no-conflicts --no-breaks --no-replaces --no-enhances \
+          --no-pre-depends openjdk-11-jdk | grep '^\w') && \
+        cd /home/bastion/openjdk-11-jre && \
+        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+          --no-conflicts --no-breaks --no-replaces --no-enhances \   
+          --no-pre-depends openjdk-11-jre | grep "^\w")
+      args:
+        executable: /bin/bash
+      environment:
+        DEBIAN_FRONTEND: noninteractive
