@@ -1,5 +1,28 @@
 ---
 - name: Download OpenJDK 11 packages on bastion
+  hosts: all
+  become: true
+  vars:
+    package_name: openjdk-11-jdk
+    download_dir: /home/bastion/openjdk-11-jdk
+  vars_prompt:
+    - name: "bastion_ip"
+      prompt: "Enter the IPv6 address of the bastion host"
+      private: no
+
+    - name: "project_name"
+      prompt: "Enter the project name used to name the PEM file"
+      private: no
+
+  tasks:
+    - name: Add bastion host to inventory at runtime
+      add_host:
+        name: "[{{ bastion_ip }}]"
+        groups: bastion
+        ansible_user: bastion
+        ansible_ssh_private_key_file: "./build/{{ project_name }}-bastion.pem"
+
+- name: Download OpenJDK 11 packages on bastion
   hosts: bastion
   become: true
   vars:
