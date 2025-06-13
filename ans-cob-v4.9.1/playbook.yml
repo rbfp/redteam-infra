@@ -82,5 +82,17 @@
       args:
         executable: /bin/bash
 
+    - name: Install 7zip
+      apt:
+        name: 7zip
+        state: present
+        update_cache: yes
 
+    - name: Download and Set up Cobalt Strike 4.9.1
+      get_url:
+        url: "https://github.com/rbfp/redteam-infra/releases/download/4.9.1/cs-4.9.1.7z"
+        dest: /home/bastion/cs-4.9.1.7z
+        mode: '0644'
+        owner: bastion
+        group: bastion
 
