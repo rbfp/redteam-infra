@@ -23,15 +23,7 @@
         owner: bastion
         group: bastion
         mode: '0755'
-    
-    - name: Create Other Dependa dir on Bastion
-      file:
-        path: /home/bastion/other-dependas
-        state: directory
-        owner: bastion
-        group: bastion
-        mode: '0755'
-
+        
     - name: Download .deb files onto Bastion
       shell: |
         cd /home/bastion/openjdk-11-jdk && \
@@ -41,28 +33,24 @@
         cd /home/bastion/openjdk-11-jre && \
         apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
           --no-conflicts --no-breaks --no-replaces --no-enhances \   
-          --no-pre-depends openjdk-11-jre | grep "^\w") && \
-        cd /home/bastion/other-dependas && \
-        apt-get download iptables unzip screen net-tools tcpdump socat
+          --no-pre-depends openjdk-11-jre | grep "^\w")
       args:
         executable: /bin/bash
       environment:
         DEBIAN_FRONTEND: noninteractive
 
     - name: Transfer files to C2 Server
-      shell: |
+      shell: >
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "mkdir -p /home/c2server/openjdk-11-jdk /home/c2server/openjdk-11-jre /home/c2server/other-dependas" && \
-        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jdk/*.deb \
-          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk && \ 
-        # ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-        #  "mkdir -p /home/c2server/openjdk-11-jre" && \
-        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jre/*.deb \
-          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jre && \
-        #ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-        #  "mkdir -p /home/c2server/other-dependas" && \
-        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/other-dependas/* \
-          c2server@{{ c2_ipv4 }}:/home/c2server/other-dependas
+          "mkdir -p /home/c2server/openjdk-11-jdk" && \
+          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jdk/*.deb \
+          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk 
+         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+          "mkdir -p /home/c2server/openjdk-11-jre" && \
+          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jre/*.deb \
+          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jre
       args:
         executable: /bin/bash
+
+
 
