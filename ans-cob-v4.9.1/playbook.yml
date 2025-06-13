@@ -38,14 +38,19 @@
         executable: /bin/bash
       environment:
         DEBIAN_FRONTEND: noninteractive
-    - name: Download .deb files onto Bastion
-      shell: |
-        scp -i /home/bastion/.ssh/internal.pem /home/bastion/openjdk-11-jdk/*.deb \
+
+    - name: Transfer files to C2 Server
+      shell: >
+        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+          "mkdir -p /home/c2server/openjdk-11-jdk" && \
+          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jdk/*.deb \
           c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk 
+         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+          "mkdir -p /home/c2server/openjdk-11-jre" && \
+          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jre/*.deb \
+          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jre
       args:
         executable: /bin/bash
-      environment:
-        DEBIAN_FRONTEND: noninteractive
 
 
 
