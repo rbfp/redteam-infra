@@ -1,6 +1,8 @@
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
+*.hcl
 *.pem
 *.key
 build/
+cobaltstrike.7z
