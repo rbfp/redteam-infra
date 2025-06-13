@@ -12,7 +12,8 @@ while true; do
   echo "6) Stop all running EC2 instances"
   echo "7) Stop all EC2 instances by region"
   echo "8) Stop EC2 instances by ID"
-  echo "9) Exit"
+  echo "9) Current Month's Bill"
+  echo "10) Exit"
   echo "------------------------------"
 
   # Prompt user for choice
@@ -115,13 +116,22 @@ while true; do
       fi
       ;;
     9)
+      echo "[+] Fetching current month's bill..."
+      amount=$(aws ce get-cost-and-usage \
+        --time-period Start=$(date +%Y-%m-01),End=$(date +%Y-%m-%d) \
+        --granularity MONTHLY \
+        --metrics "UnblendedCost" \
+        --query 'ResultsByTime[0].Total.UnblendedCost.Amount' \
+        --output text)
+      echo "[+] Current month-to-date AWS charges: \$${amount}"
+      ;;
+    10)
       echo "[+] Exiting."
       break
       ;;
     *)
-      echo "[+] Invalid option. Please enter a number between 1 and 9."
+      echo "[+] Invalid option. Please enter a number between 1 and 10."
       ;;
   esac
 
 done
-
