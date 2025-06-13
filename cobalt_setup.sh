@@ -19,5 +19,5 @@ fi
 echo "Using PEM file: $PEM_FILE"
 
 # Run Ansible playbook with inline inventory
-ansible-playbook -i "$BASTION_IPV6," -u bastion --private-key "$PEM_FILE" ./ans-cob-v4.9.1/playbook.yml -e "bastion_ipv6=$BASTION_IPV6" -e "c2server_ipv4=$C2_IPV4"
+ansible-playbook -i "$BASTION_IPV6," -u bastion --private-key "$PEM_FILE" ./ans-cob-v4.9.1/playbook.yml -e "c2_ipv4=$C2_IPV4"
 

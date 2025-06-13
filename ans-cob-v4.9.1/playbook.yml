@@ -1,5 +1,5 @@
 ---
-- name: Update APT and download OpenJDK 11 packages
+- name: Install Dependencies on C2 Server
   hosts: all 
   become: true
   tasks:
@@ -8,7 +8,7 @@
         update_cache: yes
         cache_valid_time: 3600  # optional: only update if older than 1 hour
 
-    - name: Create directory for OpenJDK 11 JDK .deb files
+    - name: Create JDK dir on Bastion
       file:
         path: /home/bastion/openjdk-11-jdk
         state: directory
@@ -16,7 +16,7 @@
         group: bastion
         mode: '0755'
 
-    - name: Create directory for OpenJDK 11 JRE .deb files
+    - name: Create JRE dir on Bastion
       file:
         path: /home/bastion/openjdk-11-jre
         state: directory
@@ -24,7 +24,7 @@
         group: bastion
         mode: '0755'
         
-    - name: Download .deb files
+    - name: Download .deb files onto Bastion
       shell: |
         cd /home/bastion/openjdk-11-jdk && \
         apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
@@ -38,16 +38,14 @@
         executable: /bin/bash
       environment:
         DEBIAN_FRONTEND: noninteractive
+    - name: Download .deb files onto Bastion
+      shell: |
+        scp -i /home/bastion/.ssh/internal.pem /home/bastion/openjdk-11-jdk/*.deb \
+          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk 
+      args:
+        executable: /bin/bash
+      environment:
+        DEBIAN_FRONTEND: noninteractive
 
-- name: Sync jdk and jre folders from bastion to c2 server
-  hosts: "{{ c2server_ipv4 }}"
-  gather_facts: false
-  tasks:
-    - name: Sync jdk folder from bastion to c2 server
-      synchronize:
-        src: /home/bastion/openjdk-11-jdk
-        dest: /home/c2server/openjdk-11-jdk
-        mode: pull
-        rsync_opts:
-          - "--rsh=ssh -i /home/bastion/.ssh/internal.pem -l c2server -o StrictHostKeyChecking=no"
-        delegate_to: "{{ bastion_ipv6 }}"
+
+
