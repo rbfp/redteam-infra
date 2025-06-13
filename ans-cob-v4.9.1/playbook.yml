@@ -75,6 +75,10 @@
       shell: |
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
           "sudo dpkg -i /home/c2server/other-dependas/*.deb" 
+        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+          "sudo dpkg -i /home/c2server/openjdk-11-jdk/*.deb"
+        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+          "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb"
       args:
         executable: /bin/bash
 
