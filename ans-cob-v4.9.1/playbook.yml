@@ -71,5 +71,12 @@
       args:
         executable: /bin/bash
 
+    - name: Install .deb files
+      shell: |
+        cd /home/c2server/other-dependas && \
+        sudo dpkg -i *.deb 
+      args:
+        executable: /bin/bash
+
 
 
