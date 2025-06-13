@@ -65,7 +65,4 @@
           c2server@{{ c2_ipv4 }}:/home/c2server/other-dependas
       args:
         executable: /bin/bash
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-
 
