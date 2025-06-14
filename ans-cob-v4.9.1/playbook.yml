@@ -2,7 +2,14 @@
 - name: Install Dependencies on C2 Server
   hosts: all 
   become: true
-  tasks:
+   
+  vars_prompt:
+    - name: 7zpass
+      prompt: "Enter 7z Password"
+      private: yes
+  
+  tasks: 
+
     - name: Ensure apt cache is updated
       apt:
         update_cache: yes
@@ -82,9 +89,9 @@
 #      args:
 #        executable: /bin/bash
 #
-#    - name: Install 7zip
+#    - name: Install p7zip-full
 #      apt:
-#        name: 7zip
+#        name: p7zip-full
 #        state: present
 #        update_cache: yes
 #
@@ -95,10 +102,26 @@
 #        mode: '0644'
 #        owner: bastion
 #        group: bastion
-    
-    - name: Transfer Cobalt Strike from Bastion to C2
-      shell: |
-       scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/cs-4.9.1.7z \
-          c2server@{{ c2_ipv4 }}:/home/c2server
-      args:
-        executable: /bin/bash
+#    
+#    - name: Transfer Cobalt Strike from Bastion to C2
+#      shell: |
+#       scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/cs-4.9.1.7z \
+#          c2server@{{ c2_ipv4 }}:/home/c2server
+#      args:
+#        executable: /bin/bash
+
+# 
+#    - name: Unzip CobaltStrike
+#      shell: |
+#        7z x -p'{{ 7zpass }}' /home/bastion/cs-4.9.1.7z -o/home/bastion/cs-4.9.1/
+#      args:
+#          executable: /bin/bash
+#
+   
+    - name: Extract CobaltStrike
+      ansible.builtin.unarchive:
+        src: /home/bastion/cs-4.9.1.7z
+        dest: /home/bastion/
+        remote_src: yes
+        extra_opts:
+          - "-p{{ 7zpass }}"    
