@@ -2,10 +2,10 @@
 - name: Install Dependencies on C2 Server
   hosts: all 
   become: true 
-  vars_prompt:
-    - name: PASS
-      prompt: "Enter 7z Password"
-      private: yes
+#  vars_prompt:
+#    - name: PASS
+#      prompt: "Enter 7z Password"
+#      private: yes
   tasks: 
     - name: Ensure apt cache is updated
       apt:
@@ -28,89 +28,100 @@
 #        group: bastion
 #        mode: '0755'
 #    
-#    - name: Create Other Dependas on Bastion
+#    - name: Create C2 Dependas on Bastion
 #      file:
-#        path: /home/bastion/other-dependas
+#        path: /home/bastion/c2-dependas
 #        state: directory
 #        owner: bastion
 #        group: bastion
 #        mode: '0755'
+#
+    - name: Create Redirector Dependas on Bastion
+      file:
+        path: /home/bastion/re-dependas
+        state: directory
+        owner: bastion
+        group: bastion
+        mode: '0755'
 
-    - name: Download .deb files onto Bastion
+#    - name: Download .deb files onto Bastion
+#      shell: |
+#        cd /home/bastion/openjdk-11-jdk && \
+#        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+#          --no-conflicts --no-breaks --no-replaces --no-enhances \
+#          --no-pre-depends openjdk-11-jdk | grep '^\w') && \
+#        cd /home/bastion/openjdk-11-jre && \
+#        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+#          --no-conflicts --no-breaks --no-replaces --no-enhances \   
+#          --no-pre-depends openjdk-11-jre | grep "^\w") && \
+#        cd /home/bastion/c2-dependas && \
+#        apt-get download iptables unzip screen net-tools tcpdump socat p7zip-full && \
+#        cd /home/bastion/re-dependas && \
+#        apt-get download iptables-persistent
+#      args:
+#        executable: /bin/bash
+#      environment:
+#        DEBIAN_FRONTEND: noninteractive
+#
+    - name: Transfer files to C2 Server and Redirector
       shell: |
-        cd /home/bastion/openjdk-11-jdk && \
-        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
-          --no-conflicts --no-breaks --no-replaces --no-enhances \
-          --no-pre-depends openjdk-11-jdk | grep '^\w') && \
-        cd /home/bastion/openjdk-11-jre && \
-        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
-          --no-conflicts --no-breaks --no-replaces --no-enhances \   
-          --no-pre-depends openjdk-11-jre | grep "^\w") && \
-        cd /home/bastion/other-dependas && \
-        apt-get download iptables unzip screen net-tools tcpdump socat p7zip-full
+#        # jdk
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "mkdir -p /home/c2server/openjdk-11-jdk" && \
+#        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jdk/*.deb \
+#          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk && \ 
+#        
+#        # jre  
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "mkdir -p /home/c2server/openjdk-11-jre" && \
+#        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jre/*.deb \
+#          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jre && \
+#        
+#        # c2 dependas
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "mkdir -p /home/c2server/c2-dependas" && \
+#          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/c2-dependas/*.deb \
+#          c2server@{{ c2_ipv4 }}:/home/c2server/c2-dependas
+#
+        # re dependas
+        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
+          "mkdir -p /home/redirector/re-dependas" && \
+          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/re-dependas/*.deb \
+          redirector@{{ re_ipv4 }}:/home/redirector/re-dependas
       args:
         executable: /bin/bash
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-
-    - name: Transfer files to C2 Server
-      shell: |
-        # jdk
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "mkdir -p /home/c2server/openjdk-11-jdk" && \
-        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jdk/*.deb \
-          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jdk && \ 
-        
-        # jre  
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "mkdir -p /home/c2server/openjdk-11-jre" && \
-        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/openjdk-11-jre/*.deb \
-          c2server@{{ c2_ipv4 }}:/home/c2server/openjdk-11-jre && \
-        
-        # other dependas
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "mkdir -p /home/c2server/other-dependas" && \
-          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/other-dependas/*.deb \
-          c2server@{{ c2_ipv4 }}:/home/c2server/other-dependas
-      args:
-        executable: /bin/bash
-
+#
     - name: Install .deb files
       shell: |
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/other-dependas/*.deb" 
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/openjdk-11-jdk/*.deb"
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb"
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "sudo dpkg -i /home/c2server/c2-dependas/*.deb" 
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "sudo dpkg -i /home/c2server/openjdk-11-jdk/*.deb"
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb"
+        ssh -i .ssh/internal.pem -s StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
+          "sudo dpkg -i /home/redirector/re-dependas/*.deb"
       args:
         executable: /bin/bash
-
+#
 #    - name: Install p7zip-full
 #      apt:
 #        name: p7zip-full
 #        state: present
 #        update_cache: yes
 
-    - name: Download and Set up Cobalt Strike 4.9.1
-      get_url:
-        url: "https://cs-v491.s3.dualstack.us-west-1.amazonaws.com/cs-4.9.1.7z"
-        dest: /home/bastion/cs-4.9.1.7z
-        mode: '0644'
-        owner: bastion
-        group: bastion
- 
-    - name: Unzip CobaltStrike
-      shell: |
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "7z x -p{{PASS}} /home/c2server/cs-4.9.1.7z -o/home/c2server/"
-      args:
-          executable: /bin/bash
-
-#    - name: Transfer Cobaltstrike folder to C2Server
+#    - name: Download and Set up Cobalt Strike 4.9.1
+#      get_url:
+#        url: "https://cs-v491.s3.dualstack.us-west-1.amazonaws.com/cs-4.9.1.7z"
+#        dest: /home/bastion/cs-4.9.1.7z
+#        mode: '0644'
+#        owner: bastion
+#        group: bastion
+# 
+#    - name: Unzip CobaltStrike
 #      shell: |
-#        #ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-#        #  "mkdir -p /home/c2server/CS491" && \
-#        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/CS491 \
-#          c2server@{{ c2_ipv4 }}:/home/c2server/ && \
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
+#          "7z x -p{{PASS}} /home/c2server/cs-4.9.1.7z -o/home/c2server/"
+#      args:
+#          executable: /bin/bash
 
