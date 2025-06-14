@@ -4,42 +4,43 @@
   become: true
    
   vars_prompt:
-    - name: 7zpass
+    - name: PASS
       prompt: "Enter 7z Password"
       private: yes
   
   tasks: 
 
-    - name: Ensure apt cache is updated
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600  # optional: only update if older than 1 hour
-
-    - name: Create JDK dir on Bastion
-      file:
-        path: /home/bastion/openjdk-11-jdk
-        state: directory
-        owner: bastion
-        group: bastion
-        mode: '0755'
-
-    - name: Create JRE dir on Bastion
-      file:
-        path: /home/bastion/openjdk-11-jre
-        state: directory
-        owner: bastion
-        group: bastion
-        mode: '0755'
-    
-    - name: Create Other Dependas on Bastion
-      file:
-        path: /home/bastion/other-dependas
-        state: directory
-        owner: bastion
-        group: bastion
-        mode: '0755'
-
+#    - name: Ensure apt cache is updated
+#      apt:
+#        update_cache: yes
+#        cache_valid_time: 3600  # optional: only update if older than 1 hour
+#
+#    - name: Create JDK dir on Bastion
+#      file:
+#        path: /home/bastion/openjdk-11-jdk
+#        state: directory
+#        owner: bastion
+#        group: bastion
+#        mode: '0755'
+#
+#    - name: Create JRE dir on Bastion
+#      file:
+#        path: /home/bastion/openjdk-11-jre
+#        state: directory
+#        owner: bastion
+#        group: bastion
+#        mode: '0755'
+#    
+#    - name: Create Other Dependas on Bastion
+#      file:
+#        path: /home/bastion/other-dependas
+#        state: directory
+#        owner: bastion
+#        group: bastion
+#        mode: '0755'
+#
 #    - name: Download .deb files onto Bastion
+#
 #      shell: |
 #        cd /home/bastion/openjdk-11-jdk && \
 #        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
@@ -110,18 +111,13 @@
 #      args:
 #        executable: /bin/bash
 
-# 
-#    - name: Unzip CobaltStrike
-#      shell: |
-#        7z x -p'{{ 7zpass }}' /home/bastion/cs-4.9.1.7z -o/home/bastion/cs-4.9.1/
-#      args:
-#          executable: /bin/bash
-#
-   
-    - name: Extract CobaltStrike
-      ansible.builtin.unarchive:
-        src: /home/bastion/cs-4.9.1.7z
-        dest: /home/bastion/
-        remote_src: yes
-        extra_opts:
-          - "-p{{ 7zpass }}"    
+ 
+    - name: Unzip CobaltStrike
+      shell: |
+        7z x -p{{PASS}} /home/bastion/cs-4.9.1.7z -o/home/bastion
+      args:
+          executable: /bin/bash
+      become: true
+      become_user: bastion
+
+  

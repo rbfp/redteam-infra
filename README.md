@@ -40,11 +40,14 @@ aws configure
 ./configure_region.sh
 
 # Step 3
-# Once the script is completed, you'll see instructions to run the following in your terminal. Type "yes" when prompted.
-[➡] Next steps:
-cd build
-terraform init && terraform plan && terraform apply
+# Verify your AWS resources are running with manage_aws.sh > option 2 > [type your region]
+./manage_aws.sh
 
 # Step 4
-# Upon completion you'll see
-Apply complete! Resources: 30 added, 0 changed, 0 destroyed.
+# Set up Cobalt Strike or C2 of choice
+# PreRequisites:
+## 1) Host and replace the cobalstrike file
+## 2) Should be a 7z file
+## 3) Password protect your public Cobaltstrike 7z file
+
+./cobalt_setup.sh
