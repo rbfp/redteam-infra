@@ -116,14 +116,40 @@ while true; do
       fi
       ;;
     9)
-      echo "[+] Fetching current month's bill..."
-      amount=$(aws ce get-cost-and-usage \
-        --time-period Start=$(date +%Y-%m-01),End=$(date +%Y-%m-%d) \
-        --granularity MONTHLY \
-        --metrics "UnblendedCost" \
-        --query 'ResultsByTime[0].Total.UnblendedCost.Amount' \
-        --output text)
-      echo "[+] Current month-to-date AWS charges: \$${amount}"
+      # Set start and end dates
+      START_DATE=$(date +%Y-%m-01)
+      END_DATE=$(date +%Y-%m-%d)
+
+      echo "==============================="
+      echo "[+] AWS Monthly Bill Summary"
+      echo "    From $START_DATE to $END_DATE"
+      echo "==============================="
+
+      echo -e "\n[+] Total Cost This Month:"
+      aws ce get-cost-and-usage \
+  	--time-period Start=$START_DATE,End=$END_DATE \
+  	--granularity MONTHLY \
+  	--metrics "UnblendedCost" \
+  	--query 'ResultsByTime[0].Total.UnblendedCost.Amount' \
+  	--output text
+
+      echo -e "\n[+] Cost by Service:"
+      aws ce get-cost-and-usage \
+  	--time-period Start=$START_DATE,End=$END_DATE \
+  	--granularity MONTHLY \
+  	--metrics "UnblendedCost" \
+  	--group-by Type=DIMENSION,Key=SERVICE \
+  	--query 'ResultsByTime[0].Groups[*].{Service: Keys[0], Cost: Metrics.UnblendedCost.Amount}' \
+  	--output table
+
+      echo -e "\n[+] Credits and Refunds (if any):"
+      aws ce get-cost-and-usage \
+  	--time-period Start=$START_DATE,End=$END_DATE \
+  	--granularity MONTHLY \
+  	--filter '{"Dimensions": {"Key": "RECORD_TYPE", "Values": ["Credit", "Refund"]}}' \
+  	--metrics "UnblendedCost" \
+  	--query 'ResultsByTime[0].Total.UnblendedCost.Amount' \
+  	--output text
       ;;
     10)
       echo "[+] Exiting."
