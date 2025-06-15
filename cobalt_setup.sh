@@ -1,20 +1,16 @@
 #!/bin/bash
 
-#echo "Enter the Bastion IPv6 address:"
-#read -r BASTION_IPV6
-BASTION_IPV6="2600:1f1c:1a3:9000:4c77:3a22:1544:3f5e"
+echo "Enter the Bastion IPv6 address:"
+read -r BASTION_IPV6
 
-#echo "Enter the C2 Server IPv4 address:"
-#read -r C2_IPV4
-C2_IPV4="10.0.140.75"
+echo "Enter the C2 Server IPv4 address:"
+read -r C2_IPV4
 
-#echo "Enter the Redirector IPv4 address:"
-#read -r RE_IPV4
-RE_IPV4="10.0.140.94"
+echo "Enter the Redirector IPv4 address:"
+read -r RE_IPV4
 
-#echo "Enter the project name (used to locate the PEM file):"
-#read -r PROJECT_NAME
-PROJECT_NAME="redwesttest"
+echo "Enter the project name (used to locate the PEM file):"
+read -r PROJECT_NAME
 
 PEM_FILE="./build/${PROJECT_NAME}-bastion.pem"
 
