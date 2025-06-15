@@ -94,24 +94,24 @@ ssh -i redteam_infra/build/{{ project_name }}-bastion.pem bastion@{{ bastion_ipv
 # (this is specific to my CS setup)
 ## 1) ssh to Bastion > ssh to C2 Server
 ## 2) in the C2 Server run:
-   2a) chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
-## 2b) ~/CS491/Server/teamserver {{ c2_ipv4 }} {{ cobalt_server_pass }}
+chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
+~/CS491/Server/teamserver {{ c2_ipv4 }} {{ cobalt_server_pass }}
 ## [note] you pick the {{ cobalt_server_pass }}
 ## [note] leave open or CS server will shutdown
-## 3) on your attack box, open a new terminal
-## 4) ssh -i {{ project_name }}-bastion.pem -L 50050:{{ c2_ipv4 }}:50050 bastion@{{bastion-ipv6}}
+## 3) on your attack box, open a new terminal and run:
+ssh -i {{ project_name }}-bastion.pem -L 50050:{{ c2_ipv4 }}:50050 bastion@{{bastion-ipv6}}
 ## [note] ssh proxy to connect your attack box to your c2 server
 ## [note] leave open or your CS client won't talk to your CS server
-## 5) on your attack box, open a new terminal
+## 4) on your attack box, open a new terminal
 ## 6) ssh to bastion > ssh to redirector
 ## 7) in your Redirector run:
-## 7a) sudo socat TCP6-LISTEN:443,reuseaddr,fork TCP4:{{ c2_ipv4}}:443
+sudo socat TCP6-LISTEN:443,reuseaddr,fork TCP4:{{ c2_ipv4}}:443
 ## [note] redirects ipv6 traffic to C2 Server (ipv4)
 ## [note] leave open or your beacons won't talk to your CS server
-## 8) Download & extract the CobaltStrike 7zip onto your Attack Box
-## 9) chmod +x ~/CS491/Client/cobaltstrike-client.sh
-## 10) open a new terminal 
-## 11) ./cobaltstrike-client.sh
+## 8) Download & extract the CobaltStrike 7zip onto your Attack Box then run:
+chmod +x ~/CS491/Client/cobaltstrike-client.sh
+## 9) open a new terminal and run:
+./cobaltstrike-client.sh
 ## 12) Fill in:
 ## 12a) Alias: rbfp@{{ project_name }}
 ## 12b) Host: 127.0.0.1
