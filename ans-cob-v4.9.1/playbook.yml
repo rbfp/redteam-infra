@@ -135,6 +135,6 @@
     - name: Set up redirector iptables
       shell: | 
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-          "sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination {{ c2_ipv4 }}:443 && sudo iptables -t nat -A POSTROUTING -p tcp --dport 443 -j MASQUERADE && sudo netfilter-persistent save"
+          "sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination {{ c2_ipv4 }}:443 && sudo iptables -t nat -A POSTROUTING -p tcp --dport 443 -j MASQUERADE && sudo netfilter-persistent save" # remove iptables and add socat if fails after redirector deployment
       args: 
         executable: /bin/bash 

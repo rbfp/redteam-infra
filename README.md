@@ -37,7 +37,7 @@ aws configure
 
 # Step 2
 # Run through the helper script to identify the Region you want to build your infrastructure
-./configure_region.sh
+./infra_setup.sh
 
 # Step 3
 # Verify your AWS resources are running with manage_aws.sh > option 2 > [type your region]
