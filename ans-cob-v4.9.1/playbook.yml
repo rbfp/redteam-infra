@@ -50,17 +50,19 @@
         apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
           --no-conflicts --no-breaks --no-replaces --no-enhances \
           --no-pre-depends openjdk-11-jdk | grep '^\w') && \
+
         cd /home/bastion/openjdk-11-jre && \
         apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
           --no-conflicts --no-breaks --no-replaces --no-enhances \   
           --no-pre-depends openjdk-11-jre | grep "^\w") && \
+
         cd /home/bastion/c2-dependas && \
-        apt-get download iptables unzip screen net-tools tcpdump socat p7zip-full && \
+        apt-get download iptables unzip screen net-tools tcpdump socat p7zip p7zip-full && \
+        # Rename p7zip .deb to ensure it installs before p7zip-full
+        for f in p7zip_*.deb; do mv "$f" "000-$f"; done && \
+
         cd /home/bastion/re-dependas && \
-        apt-get download iptables-persistent && \
-        cd /home/bastion/re-dependas && \
-        apt-get download iptables-persistent netfilter-persistent && \
-        cp /home/bastion/c2-dependas/socat* /home/bastion/re-dependas
+        apt-get download iptables-persistent netfilter-persistent socat
       args:
         executable: /bin/bash
       environment:
@@ -97,17 +99,16 @@
     - name: Install .deb files on C2 Server and Redirector
       shell: |
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/c2-dependas/*.deb" 
+          "sudo dpkg -i /home/c2server/c2-dependas/*.deb" && \ 
+          
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/openjdk-11-jdk/*.deb"
+          "sudo dpkg -i /home/c2server/openjdk-11-jdk/*.deb" && \
+
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
-          "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb"
+          "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb" && \
+
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-          "dpkg -i /home/redirector/re-dependas/*.deb"
-#        # To install iptable-persistent I had to accept a prompt that came up after installation so this hodgepodge does that
-#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-#        "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections && echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections && DEBIAN_FRONTEND=noninteractive && dpkg -i /home/redirector/re-dependas/*.deb'"
-#
+          "dpkg -i /home/redirector/re-dependas/socat*.deb"  
       args:
         executable: /bin/bash
 
@@ -134,10 +135,3 @@
           "7z x -p{{PASS}} /home/c2server/cs-4.9.1.7z -o/home/c2server/"
       args:
           executable: /bin/bash
-
-#    - name: Set up redirector iptables
-#      shell: | 
-#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-#          "sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination {{ c2_ipv4 }}:443 && sudo iptables -t nat -A POSTROUTING -p tcp --dport 443 -j MASQUERADE && sudo netfilter-persistent save" # remove iptables and add socat if fails after redirector deployment
-#      args: 
-#        executable: /bin/bash 
