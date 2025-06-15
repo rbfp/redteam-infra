@@ -108,7 +108,7 @@
           "sudo dpkg -i /home/c2server/openjdk-11-jre/*.deb" && \
 
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-          "dpkg -i /home/redirector/re-dependas/socat*.deb"  
+          "sudo dpkg -i /home/redirector/re-dependas/*.deb"  
       args:
         executable: /bin/bash
 
