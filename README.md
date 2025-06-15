@@ -94,7 +94,7 @@ ssh -i redteam_infra/build/{{ project_name }}-bastion.pem bastion@{{ bastion_ipv
 # (this is specific to my CS setup)
 ## 1) ssh to Bastion > ssh to C2 Server
 ## 2) in the C2 Server run:
-## 2a) chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
+   2a) chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
 ## 2b) ~/CS491/Server/teamserver {{ c2_ipv4 }} {{ cobalt_server_pass }}
 ## [note] you pick the {{ cobalt_server_pass }}
 ## [note] leave open or CS server will shutdown
