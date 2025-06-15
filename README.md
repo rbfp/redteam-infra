@@ -44,10 +44,26 @@ aws configure
 ./manage_aws.sh
 
 # Step 4
-# Set up Cobalt Strike or C2 of choice
+# Set up Cobalt Strike or C2 of choice, this will also configure your redirector for CS
 # PreRequisites:
-## 1) Host and replace the cobalstrike file
+## 1) Host your own CobaltStrike file and replace the link in the yml with your link
 ## 2) Should be a 7z file
 ## 3) Password protect your public Cobaltstrike 7z file
-
 ./cobalt_setup.sh
+
+# Step 5
+# Connect CS Client to CS Server [this is specific to my CS files may not apply to others]
+## 1) SSH to Bastion > SSH to C2teamser
+## 2) chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
+## 3) ~/CS491/Server/teamserver [C2_IPV4] [SET A PASSWORD]
+## 4) Download the CobaltStrike 7zip onto your Attack Box
+## 5) chmod +x ~/CS491/Client/cobaltstrike-client.sh
+## 6) ssh -i {{ project_name }}-bastion.pem -L 50050:{{ c2_ipv4 }}:50050 bastion@{{bastion-ipv6}}
+## 7) new terminal
+## 8) ./cobaltstrike-client.sh
+## 9) Fill in:
+##       Alias: rbfp@{{ project_name }}
+##        Host: 127.0.0.1
+##        Port: 50050
+##        User: rbfp
+##    Password: {{ password }}

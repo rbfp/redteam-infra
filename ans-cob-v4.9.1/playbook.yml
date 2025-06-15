@@ -7,10 +7,10 @@
 #      prompt: "Enter 7z Password"
 #      private: yes
   tasks: 
-    - name: Ensure apt cache is updated
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600  # optional: only update if older than 1 hour
+#    - name: Ensure apt cache is updated
+#      apt:
+#        update_cache: yes
+#        cache_valid_time: 3600  # optional: only update if older than 1 hour
 
 #    - name: Create JDK dir on Bastion
 #      file:
@@ -36,24 +36,24 @@
 #        group: bastion
 #        mode: '0755'
 #
-    - name: Create Redirector Dependas on Bastion
-      file:
-        path: /home/bastion/re-dependas
-        state: directory
-        owner: bastion
-        group: bastion
-        mode: '0755'
-
-    - name: Download .deb files onto Bastion
-      shell: |
-        cd /home/bastion/re-dependas && \
-        apt-get download iptables-persistent netfilter-persistent && \
-        cp /home/bastion/c2-dependas/iptables* /home/bastion/re-dependas
-      args:
-        executable: /bin/bash
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-
+#    - name: Create Redirector Dependas on Bastion
+#      file:
+#        path: /home/bastion/re-dependas
+#        state: directory
+#        owner: bastion
+#        group: bastion
+#        mode: '0755'
+#
+#    - name: Download .deb files onto Bastion
+#      shell: |
+#        cd /home/bastion/re-dependas && \
+#        apt-get download iptables-persistent netfilter-persistent && \
+#        cp /home/bastion/c2-dependas/iptables* /home/bastion/re-dependas
+#      args:
+#        executable: /bin/bash
+#      environment:
+#        DEBIAN_FRONTEND: noninteractive
+#
 #        cd /home/bastion/openjdk-11-jdk && \
 #        apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
 #          --no-conflicts --no-breaks --no-replaces --no-enhances \
@@ -71,15 +71,15 @@
 #      environment:
 #        DEBIAN_FRONTEND: noninteractive
 #
-    - name: Transfer files to C2 Server and Redirector
-      shell: |
-        # re dependas
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-          "mkdir -p /home/redirector/re-dependas" && \
-          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/re-dependas/*.deb \
-          redirector@{{ re_ipv4 }}:/home/redirector/re-dependas
-      args:
-        executable: /bin/bash
+#    - name: Transfer files to C2 Server and Redirector
+#      shell: |
+#        # re dependas
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
+#          "mkdir -p /home/redirector/re-dependas" && \
+#          scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/re-dependas/*.deb \
+#          redirector@{{ re_ipv4 }}:/home/redirector/re-dependas
+#      args:
+#        executable: /bin/bash
 #        # jdk
 #        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
 #          "mkdir -p /home/c2server/openjdk-11-jdk" && \
@@ -100,13 +100,13 @@
 #
         
 #
-    - name: Install .deb files
-      shell: |
-        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
-        "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections && echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections && DEBIAN_FRONTEND=noninteractive && dpkg -i /home/redirector/re-dependas/*.deb'"
-
-      args:
-        executable: /bin/bash
+#    - name: Install .deb files on C2 Server and Redirector
+#      shell: |
+#        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
+#        "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections && echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections && DEBIAN_FRONTEND=noninteractive && dpkg -i /home/redirector/re-dependas/*.deb'"
+#
+#      args:
+#        executable: /bin/bash
 #        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
 #          "sudo dpkg -i /home/c2server/c2-dependas/*.deb" 
 #        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
@@ -136,3 +136,9 @@
 #      args:
 #          executable: /bin/bash
 
+    - name: Set up redirector iptables
+      shell: | 
+        ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no redirector@{{ re_ipv4 }} \
+          "sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination {{ c2_ipv4 }}:443 && sudo iptables -t nat -A POSTROUTING -p tcp --dport 443 -j MASQUERADE && sudo netfilter-persistent save"
+      args: 
+        executable: /bin/bash 
