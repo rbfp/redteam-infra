@@ -125,8 +125,10 @@
         owner: bastion
         group: bastion
  
-    - name: Unzip CobaltStrike
+    - name: Unzip CobaltStrike 
       shell: |
+        scp -i .ssh/internal.pem -o StrictHostKeyChecking=no -v /home/bastion/cs-4.9.1.7z \
+          c2server@{{ c2_ipv4 }}:/home/c2server && \
         ssh -i .ssh/internal.pem -o StrictHostKeyChecking=no c2server@{{ c2_ipv4 }} \
           "7z x -p{{PASS}} /home/c2server/cs-4.9.1.7z -o/home/c2server/"
       args:
