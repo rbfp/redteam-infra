@@ -57,12 +57,12 @@
           --no-pre-depends openjdk-11-jre | grep "^\w") && \
 
         cd /home/bastion/c2-dependas && \
-        apt-get download iptables unzip screen net-tools tcpdump socat p7zip p7zip-full && \
+        apt-get download unzip screen net-tools tcpdump socat p7zip p7zip-full && \
         # Rename p7zip .deb to ensure it installs before p7zip-full
         for f in p7zip_*.deb; do mv "$f" "000-$f"; done && \
 
         cd /home/bastion/re-dependas && \
-        apt-get download iptables-persistent netfilter-persistent socat
+        cp /home/bastion/c2-dependas/socat* /home/bastion/re-dependas
       args:
         executable: /bin/bash
       environment:
