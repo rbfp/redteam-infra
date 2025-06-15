@@ -1,6 +1,6 @@
 # Red Team Infrastructure (Terraform + AWS)
 
-This repo contains a fully Terraform-managed AWS deployment for red team operations. It supports standing up infrastructure for redirectors, C2 servers, bastion hosts, and more — all reproducible, configurable, and automated.
+This repo contains a fully Terraform-managed AWS deployment for red team operations. It supports standing up infrastructure for redirectors, C2 servers, bastion hosts, and more — all reproducible, configurable, and automated. Full walkthrough on my blog: https://www.cyberforks.com/automating-red-team-infrastructure
 
 ---
 
