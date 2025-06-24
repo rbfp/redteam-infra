@@ -34,14 +34,71 @@ if [[ "$AWS_REGION" == "None" ]]; then
 fi
 
 echo "[*] Generating pre-signed URL using region $AWS_REGION..."
-SIGNED_URL=$(aws s3 presign s3://$S3_BUCKET/$S3_KEY --expires-in 300 --region "$AWS_REGION")
-SIGNED_URL=${SIGNED_URL/https:\/\/s3./https:\/\/s3.dualstack.}
+SIGNED_URL=$(aws s3 presign s3://$S3_BUCKET/$S3_KEY --expires-in 300 --region "$AWS_REGION" --endpoint-url https://s3.dualstack.$AWS_REGION.amazonaws.com)
 echo "[+] Presigned URL generated."
 echo "$SIGNED_URL"
 
 ### Transfer command to bastion ###
 echo "[*] Connecting to bastion to run wget for cloudflared .deb"
-ssh -i ./build/${PROJECT_NAME}-bastion.pem bastion@${BASTION_IP} "wget -O cloudflared.deb '$SIGNED_URL'"
+ssh -i ./build/${PROJECT_NAME}-bastion.pem bastion@${BASTION_IP} "wget -6 -O cloudflared.deb '$SIGNED_URL'"
+
+ssh -i ./build/${PROJECT_NAME}-bastion.pem bastion@${BASTION_IP} 'bash -s' <<'EOF'
+cat <<'SCRIPT' > ~/redirector_setup.sh
+#!/bin/bash
+set -euo pipefail
+
+# your commands here
+echo "Starting redirector setup..."
+
+CF_API_TOKEN="PASTE_YOUR_API_TOKEN_HERE"
+CF_ZONE_ID="PASTE_YOUR_ZONE_ID_HERE"
+CF_ACCOUNT_ID="PASTE_YOUR_ACCOUNT_ID_HERE"
+TUNNEL_NAME="my-c2-tunnel"
+TUNNEL_DOMAIN="beacon.example.com"
+LOCAL_USER="ubuntu"
+CLOUDFLARED_DIR="/home/$LOCAL_USER/.cloudflared"
+
+cloudflared tunnel create "$TUNNEL_NAME"
+TUNNEL_ID=$(basename "$CLOUDFLARED_DIR"/*.json)
+TUNNEL_ID="${TUNNEL_ID%.json}"
+echo "Tunnel ID: $TUNNEL_ID"
+
+mkdir -p "$CLOUDFLARED_DIR"
+
+cat <<CONFIG > "$CLOUDFLARED_DIR/config.yml"
+tunnel: \$TUNNEL_ID
+credentials-file: \$CLOUDFLARED_DIR/\$TUNNEL_ID.json
+
+protocol: http2
+no-autoupdate: true
+edge-ip-version: 6
+
+ingress:
+  - hostname: \$TUNNEL_DOMAIN
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+  - service: http_status:404
+CONFIG
+
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/\$CF_ZONE_ID/dns_records" \
+  -H "Authorization: Bearer \$CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type":"CNAME",
+    "name":"'"$TUNNEL_DOMAIN"'",
+    "content":"'"$TUNNEL_ID"'.cfargotunnel.com",
+    "ttl":120,
+    "proxied":true
+  }' | jq .
+
+echo "Done. To run:"
+echo "cloudflared --no-autoupdate --protocol http2 --edge-ip-version 6 tunnel run \\\"\$TUNNEL_NAME\\\""
+SCRIPT
+
+chmod +x ~/redirector_setup.sh
+EOF
+
 
 ####  CONFIGURATION ###
 #CF_API_TOKEN="PASTE_YOUR_API_TOKEN_HERE"
