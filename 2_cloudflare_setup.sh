@@ -3,17 +3,11 @@
 set -euo pipefail
 
 ### INPUT: Project Info ###
-#read -p "Enter project name (used for PEM file prefix): " PROJECT_NAME
-#read -p "Enter bastion IPv6 address: " BASTION_IP
-#read -p "Enter redirector IPv4 address: " REDIRECTOR_IP
-#read -p "Enter your Cloudflare API token: " CF_API_TOKEN
-#read -p "Enter the domain to use for the tunnel: " TUNNEL_DOMAIN
-#
-PROJECT_NAME="west1"
-BASTION_IP="2600:1f1c:677:d500:4cfd:4354:782f:ab22"
-REDIRECTOR_IP="10.0.14.65"
-CF_API_TOKEN="6sGiwXWCSbk2QqLvlr7HUKWmxB0dGKzwSxUkVPdh"
-TUNNEL_DOMAIN="fmovies4.org"
+read -p "Enter project name (used for PEM file prefix): " PROJECT_NAME
+read -p "Enter bastion IPv6 address: " BASTION_IP
+read -p "Enter redirector IPv4 address: " REDIRECTOR_IP
+read -p "Enter your Cloudflare API token: " CF_API_TOKEN
+read -p "Enter the domain to use for the tunnel: " TUNNEL_DOMAIN
 
 ### Select S3 file for cloudflared .deb download ###
 echo "[*] Listing S3 buckets..."
