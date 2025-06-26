@@ -117,5 +117,5 @@ chmod +x ~/CS491/Client/cobaltstrike-client.sh
 ```
 ### Cloudflare error 1016 when navigating to your domain
 ```bash
-# Add A, AAAA, etc records as indicated on DNS page
+# Add cname record as indicated on DNS page. Should go to <TUNNEL_ID>.cfargotunnel.com
 ```
