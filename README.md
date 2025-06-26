@@ -33,6 +33,7 @@ This repo contains a fully Terraform-managed Ansible-configured AWS deployment f
 # Need AWS permissions to create Access Keys and will need the Access Key and Secret Key.
 # Configure your Cloudflare setup.
 # Need to create an API Token and save for later steps.
+# Purchase a hostname from Cloudflare to be used in Cloudflare
 git clone git@github.com:rbfp/redteam-infra.git
 cd redteam-infra
 aws configure
