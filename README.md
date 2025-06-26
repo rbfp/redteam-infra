@@ -108,3 +108,13 @@ chmod +x ~/CS491/Client/cobaltstrike-client.sh
 ## Port: 50050
 ## User: rbfp
 ## Password: {{ cobalt_server_pass }}
+```
+## Troubleshooting
+### Cloudflare error 1033 when navigating to your domain
+```bash
+# Check the domain's DNS record, update the tunnel in the DNS record to an Active tunnel
+```
+### Cloudflare error 1016 when navigating to your domain
+```bash
+# Add A, AAAA, etc records as indicated on DNS page
+```
