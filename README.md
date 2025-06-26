@@ -112,7 +112,8 @@ chmod +x ~/CS491/Client/cobaltstrike-client.sh
 ## Troubleshooting
 ### Cloudflare error 1033 when navigating to your domain
 ```bash
-# Check the domain's DNS record, update the tunnel in the DNS record to an Active tunnel
+# Check the domain's DNS record, update the tunnel in the DNS record to an Active tunnel. 
+# The target should be something like <tunnel_id>.cfargotunnel.com
 ```
 ### Cloudflare error 1016 when navigating to your domain
 ```bash
