@@ -71,12 +71,13 @@ ssh -i ./redteam_infra/build/{{ project_name }}-bastion.pem bastion@{{ bastion_i
 # Step 5
 # Run Cobalt Strike Server 
 # ssh to Bastion then ssh to C2 Server
+# Obtain/create Malleable C2 Profile
 # You pick the {{ cobalt_server_pass }}
 # Leave terminal open or CS server will shutdown
 # In the C2 Server run:
 chmod +x ~/CS491/Server/teamserver ~/CS491/Server/TeamServerImage
 cd ~/CS491/Server/
-sudo ./teamserver {{ c2_ipv4 }} {{ cobalt_server_pass }}
+sudo ./teamserver {{ c2_ipv4 }} {{ cobalt_server_pass }} {{ c2_profile }}
 
 # Set up ssh proxy to connect your attack box to your c2 server
 # Leave open or your CS client won't talk to your CS server
