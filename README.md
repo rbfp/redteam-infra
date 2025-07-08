@@ -30,7 +30,7 @@ This repo contains a fully Terraform-managed Ansible-configured AWS deployment f
 ```bash
 # Step 0
 # Configure your AWS CLI profile.
-# Need AWS permissions to create Access Keys and will need the Access Key and Secret Key.
+# Need AWS permissions to create Access Keys and will need the user to have PowerUser Settings.
 # Configure your Cloudflare setup.
 # Need to create an API Token and save for later steps.
 # Purchase a hostname from Cloudflare to be used in Cloudflare
