@@ -47,7 +47,6 @@ aws configure
 ## - Zone Resources: Include, Specific zone, <pruchased_domain>
 cloudflared login
 
-
 # Step 1
 # Run through the setup script to deploy to a Region you select
 # Note the project name you pick
@@ -62,7 +61,7 @@ cloudflared login
 # Verify your AWS resources are running with manage_aws.sh > option 2 > [type your region]
 # Verify you can ssh into your bastion host with the key in redteam_infra/build/{{ project_name }}-bastion.pem
 ./0_manage_aws.sh
-ssh -i ./redteam_infra/build/{{ project_name }}-bastion.pem bastion@{{ bastion_ipv6 }}
+ssh -i ./build/{{ project_name }}-bastion.pem bastion@{{ bastion_ipv6 }}
 
 # Step 3
 # Set up Cloudflare redirector
