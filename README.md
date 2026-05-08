@@ -33,6 +33,11 @@ This repo contains a fully Terraform-managed Ansible-configured AWS deployment f
 git clone git@github.com:rbfp/redteam-infra.git
 mv redteam-infra <project_name> && cd <project_name>
 
+# Copy the example tfvars and customize for your engagement.
+# (terraform.tfvars itself is .gitignored — each engagement has its own.)
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars: set project_name, region, profile, AMI for the engagement.
+
 # Configure your AWS CLI profile.
 ## [in web browser] Log into AWS console w/ permissions to create Access Keys and create a user to have PowerUser permissions.
 aws configure
