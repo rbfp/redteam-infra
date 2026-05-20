@@ -81,7 +81,9 @@ ssh -i ./build/{{ project_name }}-bastion.pem bastion@{{ bastion_ipv6 }}
 ./3_cobalt_setup.sh
 
 # Step 5
-# Run Cobalt Strike Server 
+# Run Cobalt Strike Server
+# (Steps 5-6 use open terminals. To make these survive a reboot instead,
+#  see Step 7 — systemd auto-start.)
 # ssh to Bastion then ssh to C2 Server
 # Obtain/create Malleable C2 Profile
 # You pick the {{ cobalt_server_pass }}
@@ -122,6 +124,25 @@ chmod +x ~/CS491/Client/cobaltstrike-client.sh
 ## User: rbfp
 ## Password: {{ cobalt_server_pass }}
 ```
+
+---
+
+## Step 7 (recommended) — Persistence: survive reboots with `systemd`
+
+Steps 5 and 6 leave the teamserver, the socat forward, and the Cloudflare tunnel running in open terminals. If any host reboots — or you stop/start the instances to save on EC2 costs between sessions — all of them die and the chain has to be hand-started again.
+
+The [`systemd/`](./systemd) directory has unit templates that make the **server-side** processes start automatically on boot:
+
+| Unit | Host | Replaces |
+|---|---|---|
+| `c2-teamserver.service` | C2 server | the manual `./teamserver` in Step 5 |
+| `socat-redirector.service` | Redirector | the manual `socat` in Step 6 |
+| `cloudflared-tunnel.service` | Redirector | the manual `cloudflared tunnel run` in Step 6 |
+
+Fill in the placeholders, copy each unit to its host, and enable it — full instructions in [`systemd/README.md`](./systemd/README.md). The operator-side SSH proxy stays manual (it runs from your attack box, not the cloud hosts).
+
+Once enabled, an EC2 stop/start needs **zero** manual server-side startup — power the instances on and the chain stands itself up.
+
 ## Troubleshooting
 ### Cloudflare error 1033 when navigating to your domain
 ```bash

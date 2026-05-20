@@ -1,0 +1,22 @@
+[Unit]
+# Red team C2 teamserver — auto-start on boot.
+# Deploy on the C2 SERVER. Replace the <PLACEHOLDERS> below before installing.
+Description=Red team C2 teamserver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/c2server/CS491/Server
+# The teamserver password is read at start from a root-only file so it never
+# lives in this unit or in shell history. Create it once on the C2 server:
+#   echo -n 'YOUR_TEAMSERVER_PASSWORD' | sudo tee /root/.c2-teamserver-pass >/dev/null
+#   sudo chmod 600 /root/.c2-teamserver-pass
+# Replace <C2_IPV4> and <C2_PROFILE> (e.g. your malleable C2 profile filename).
+ExecStart=/usr/bin/bash -c 'exec ./teamserver <C2_IPV4> "$(cat /root/.c2-teamserver-pass)" <C2_PROFILE>'
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

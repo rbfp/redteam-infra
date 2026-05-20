@@ -1,0 +1,17 @@
+[Unit]
+# Cloudflare tunnel — auto-start on boot.
+# Deploy on the REDIRECTOR. No placeholders needed if cloudflared was set up
+# by 2_cloudflare_setup.sh (config + credentials already in ~/.cloudflared/).
+Description=Red team redirector - cloudflared tunnel
+After=network-online.target socat-redirector.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=redirector
+ExecStart=/usr/local/bin/cloudflared --no-autoupdate --protocol http2 --edge-ip-version 6 --config /home/redirector/.cloudflared/config.yml tunnel run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

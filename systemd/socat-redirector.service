@@ -1,0 +1,17 @@
+[Unit]
+# Redirector socat forward — auto-start on boot.
+# Deploy on the REDIRECTOR. Replace <C2_IPV4> before installing.
+# Forwards inbound :443 on the redirector to the C2 server's :443.
+Description=Red team redirector - socat :443 forward to C2
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/socat TCP-LISTEN:443,reuseaddr,fork TCP4:<C2_IPV4>:443
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
